@@ -1,0 +1,5281 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>오키나와 4인 골프 투어 플래너</title>
+  <meta name="description" content="일요일 입국 · 월요일 1R · 화요일 2R 및 귀국 기준 오키나와 4인 골프 투어 차량, 권역별 코스, 숙소, 환율 계산, 동선 확인 플래너" />
+  <meta property="og:title" content="오키나와 4인 골프 투어 플래너" />
+  <meta property="og:description" content="일요일 입국 · 월요일 1R · 화요일 2R 오키나와 4인 골프 투어 예산 및 동선 플래너" />
+  <meta property="og:type" content="website" />
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --surface: #ffffff;
+      --surface-alt: #f2efe8;
+      --surface-tint: #ebe6dc;
+      --border: rgba(18, 55, 42, 0.11);
+      --border-strong: rgba(18, 55, 42, 0.24);
+      --text: #16241d;
+      --text-muted: #526158;
+      --text-subtle: #78857c;
+      --accent: #123b2d;
+      --accent-hover: #0b291f;
+      --accent-soft: #e7f0ec;
+      --gold: #a68246;
+      --gold-light: #e5d2ab;
+      --gold-soft: #faf5ea;
+      --ocean: #155c6e;
+      --ocean-soft: #e6f2f5;
+      --amber: #8a5610;
+      --amber-soft: #fcf5e8;
+      --amber-border: #edd7b0;
+      --coral: #a93b30;
+      --shadow-sm: 0 2px 10px rgba(18, 36, 29, 0.04);
+      --shadow-md: 0 14px 34px rgba(18, 36, 29, 0.08);
+      --shadow-lg: 0 22px 48px rgba(18, 36, 29, 0.12);
+      --ease-resort: cubic-bezier(0.22, 1, 0.36, 1);
+      --radius-xl: 20px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Malgun Gothic", "Noto Sans KR", sans-serif;
+      background-color: var(--bg);
+      background-image: radial-gradient(circle at 12% 0%, rgba(166, 130, 70, 0.06) 0%, transparent 45%),
+                        radial-gradient(circle at 88% 12%, rgba(21, 92, 110, 0.05) 0%, transparent 40%);
+      color: var(--text);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input {
+      font-family: inherit;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .serif {
+      font-family: "AppleMyungjo", "Nanum Myeongjo", "Batang", Georgia, serif;
+    }
+
+    .tabular {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Sticky Concierge Header */
+    .top-summary {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(251, 250, 247, 0.90);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(18, 36, 29, 0.04);
+    }
+
+    .top-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .top-bar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .brand-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 36px;
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.22s var(--ease-resort), border-color 0.22s var(--ease-resort), transform 0.18s var(--ease-resort), box-shadow 0.22s var(--ease-resort);
+    }
+
+    .btn:hover {
+      background: #ffffff;
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(18, 36, 29, 0.06);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:focus-visible, input:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      color: #ffffff;
+    }
+
+    .btn-ocean {
+      background: var(--ocean-soft);
+      border-color: rgba(21, 92, 110, 0.22);
+      color: var(--ocean);
+    }
+
+    .btn-ocean:hover {
+      background: #daeef3;
+      border-color: var(--ocean);
+    }
+
+    .btn-gold {
+      background: var(--gold-soft);
+      border-color: rgba(166, 130, 70, 0.45);
+      color: #6e4f1a;
+    }
+
+    .btn-gold:hover {
+      background: #f3e8d2;
+      border-color: var(--gold);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .summary-box {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 9px 13px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      transition: border-color 0.25s ease, background-color 0.25s ease;
+    }
+
+    .summary-box.highlight {
+      background: linear-gradient(135deg, #f0f5f2 0%, #f8f4eb 100%);
+      border-color: rgba(166, 130, 70, 0.35);
+    }
+
+    .summary-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .summary-main {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .summary-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rate-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: nowrap;
+    }
+
+    .rate-prefix {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .rate-input {
+      width: 76px;
+      height: 30px;
+      padding: 0 8px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .selection-strip {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding-top: 2px;
+    }
+
+    .selection-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      max-width: 100%;
+    }
+
+    .selection-item strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .dot-sep {
+      color: var(--gold);
+      opacity: 0.65;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 20px 76px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* Luxury Resort Crossfade Hero Banner */
+    .resort-hero {
+      position: relative;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      min-height: 290px;
+      background: #102a20;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(166, 130, 70, 0.25);
+    }
+
+    .hero-slides {
+      position: relative;
+      width: 100%;
+      height: 290px;
+    }
+
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 1.15s var(--ease-resort), visibility 1.15s var(--ease-resort);
+      overflow: hidden;
+    }
+
+    .hero-slide.is-active {
+      opacity: 1;
+      visibility: visible;
+      z-index: 1;
+    }
+
+    .hero-artwork {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: scale(1.0);
+      transition: transform 7s ease-out;
+    }
+
+    .hero-slide.is-active .hero-artwork {
+      transform: scale(1.06);
+    }
+
+    .hero-scrim {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: linear-gradient(95deg, rgba(11, 31, 23, 0.84) 0%, rgba(11, 31, 23, 0.56) 52%, rgba(11, 31, 23, 0.18) 100%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      padding: 34px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #ffffff;
+    }
+
+    .hero-eyebrow {
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      color: var(--gold-light);
+      text-transform: uppercase;
+    }
+
+    .hero-text-group {
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: opacity 0.65s var(--ease-resort), transform 0.65s var(--ease-resort);
+    }
+
+    .hero-headline {
+      margin: 0;
+      font-size: clamp(22px, 3vw, 31px);
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      text-wrap: balance;
+    }
+
+    .hero-subline {
+      margin: 0;
+      font-size: 13.5px;
+      color: rgba(246, 244, 239, 0.86);
+      line-height: 1.55;
+    }
+
+    .hero-bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .hero-dots {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-dot {
+      width: 24px;
+      height: 4px;
+      border-radius: 999px;
+      border: none;
+      padding: 0;
+      background: rgba(255, 255, 255, 0.32);
+      cursor: pointer;
+      transition: width 0.35s var(--ease-resort), background-color 0.35s ease;
+    }
+
+    .hero-dot.is-active {
+      width: 42px;
+      background: var(--gold-light);
+    }
+
+    .hero-nav-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-nav-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      background: rgba(16, 42, 32, 0.45);
+      backdrop-filter: blur(6px);
+      color: #ffffff;
+      font-size: 16px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .hero-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: var(--gold-light);
+      transform: scale(1.05);
+    }
+
+    /* Section Styling & Scroll Reveal Fade-In */
+    .step-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 26px 26px 24px;
+      box-shadow: var(--shadow-sm);
+      scroll-margin-top: 175px;
+      transition: opacity 0.7s var(--ease-resort), transform 0.7s var(--ease-resort), box-shadow 0.3s ease;
+    }
+
+    .step-section.reveal-pending {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .step-section.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fade-stage {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.26s var(--ease-resort), transform 0.26s var(--ease-resort);
+    }
+
+    .fade-stage.is-fading-out {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .step-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+    }
+
+    .step-title {
+      margin: 0;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .step-desc {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--text-muted);
+    }
+
+    .track-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scroll-hint {
+      font-size: 12px;
+      color: var(--text-subtle);
+      font-weight: 500;
+      white-space: nowrap;
+      margin-right: 4px;
+    }
+
+    .track-arrow-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.18s var(--ease-resort), box-shadow 0.2s ease;
+    }
+
+    .track-arrow-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(18, 59, 45, 0.18);
+    }
+
+    /* Return Flight Notice Banner */
+    .notice-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 15px;
+      margin-bottom: 16px;
+      background: var(--amber-soft);
+      border: 1px solid var(--amber-border);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: #6b4108;
+      line-height: 1.5;
+    }
+
+    .notice-banner strong {
+      color: #4f2f04;
+    }
+
+    /* Horizontal Slide Card Track */
+    .card-track {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding: 4px 2px 12px;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(166, 130, 70, 0.45) transparent;
+    }
+
+    .card-track::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .card-track::-webkit-scrollbar-thumb {
+      background: rgba(166, 130, 70, 0.4);
+      border-radius: 999px;
+    }
+
+    @keyframes cardSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .item-card {
+      position: relative;
+      flex: 0 0 306px;
+      width: 306px;
+      scroll-snap-align: start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      animation: cardSlideIn 0.48s var(--ease-resort) both;
+      animation-delay: calc(var(--card-idx, 0) * 55ms);
+      transition: border-color 0.28s var(--ease-resort), box-shadow 0.34s var(--ease-resort), transform 0.34s var(--ease-resort);
+    }
+
+    .item-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(115deg, transparent 25%, rgba(255, 255, 255, 0.34) 50%, transparent 75%);
+      transform: translateX(-120%);
+      transition: transform 0.75s var(--ease-resort);
+      z-index: 3;
+    }
+
+    .item-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 38px rgba(18, 36, 29, 0.12), 0 0 0 1px rgba(166, 130, 70, 0.28);
+      border-color: var(--gold);
+    }
+
+    .item-card:hover::after {
+      transform: translateX(120%);
+    }
+
+    .item-card.is-selected {
+      border: 2px solid var(--accent);
+      box-shadow: 0 14px 32px rgba(18, 59, 45, 0.14);
+    }
+
+    .item-card.is-selected:hover {
+      box-shadow: 0 20px 42px rgba(18, 59, 45, 0.20), 0 0 0 1px rgba(166, 130, 70, 0.35);
+    }
+
+    .card-media {
+      position: relative;
+      height: 162px;
+      background: linear-gradient(145deg, #e7efe9 0%, #dce7e5 100%);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-media img,
+    .card-media .card-svg-art {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.65s var(--ease-resort), filter 0.35s ease;
+    }
+
+    .item-card:hover .card-media img,
+    .item-card:hover .card-media .card-svg-art {
+      transform: scale(1.07);
+      filter: brightness(1.04);
+    }
+
+    .card-svg-fallback {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .card-svg-caption {
+      position: absolute;
+      bottom: 10px;
+      left: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.92);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+
+    .badge-star {
+      position: absolute;
+      top: 11px;
+      left: 11px;
+      background: rgba(18, 36, 29, 0.88);
+      backdrop-filter: blur(6px);
+      color: #f3d692;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1;
+      padding: 6px 9px;
+      border-radius: 6px;
+      border: 1px solid rgba(243, 214, 146, 0.42);
+      z-index: 2;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+    }
+
+    .badge-selected-flag {
+      position: absolute;
+      top: 11px;
+      right: 11px;
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 6px;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(18, 59, 45, 0.25);
+    }
+
+    .card-media.is-dragover {
+      outline: 2px dashed var(--accent);
+      outline-offset: -4px;
+      filter: brightness(0.95);
+    }
+
+    .media-action-bar {
+      position: absolute;
+      bottom: 9px;
+      left: 9px;
+      right: 9px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .media-action-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      pointer-events: auto;
+    }
+
+    .image-search-link {
+      pointer-events: auto;
+      background: rgba(18, 36, 29, 0.84);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      color: #f6f4ef;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 9px;
+      border-radius: 6px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .image-search-link:hover {
+      background: rgba(18, 59, 45, 0.96);
+      transform: translateY(-1px);
+    }
+
+    .upload-trigger {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(18, 36, 29, 0.16);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .upload-trigger:hover {
+      background: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .photo-remove-btn {
+      background: rgba(169, 59, 48, 0.90);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .photo-remove-btn:hover {
+      background: #8f2d23;
+      transform: translateY(-1px);
+    }
+
+    .file-input-hidden {
+      display: none;
+    }
+
+    .card-body {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .card-name {
+      margin: 0;
+      font-size: 15.5px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+    }
+
+    .card-rating {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .card-meta {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .card-flight-note {
+      font-size: 11.5px;
+      color: #704507;
+      background: var(--amber-soft);
+      border: 1px solid var(--amber-border);
+      border-radius: 8px;
+      padding: 7px 9px;
+      line-height: 1.45;
+    }
+
+    .card-plan-note {
+      font-size: 11.5px;
+      color: var(--accent-hover);
+      background: var(--accent-soft);
+      border: 1px solid rgba(18, 59, 45, 0.16);
+      border-radius: 8px;
+      padding: 7px 9px;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .gora-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(18, 59, 45, 0.18);
+      border-radius: var(--radius-md);
+      font-size: 12.5px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .gora-banner strong {
+      color: var(--accent);
+    }
+
+    .price-team-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--surface-alt);
+      border: 1px dashed var(--border-strong);
+      border-radius: 6px;
+      padding: 5px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .price-team-hint strong {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .price-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .price-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .price-field label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-subtle);
+    }
+
+    .price-input-wrap {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border-strong);
+      border-radius: 7px;
+      background: var(--surface-alt);
+      padding: 0 8px;
+      height: 35px;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .price-input-wrap:focus-within {
+      background: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .currency-symbol {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+
+    .price-input {
+      width: 100%;
+      min-width: 0;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: right;
+      outline: none;
+    }
+
+    .card-footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-select {
+      flex: 1;
+      height: 39px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--accent);
+      background: var(--surface);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.22s var(--ease-resort), color 0.22s var(--ease-resort), transform 0.16s ease;
+    }
+
+    .btn-select:hover {
+      background: var(--accent-soft);
+    }
+
+    .item-card.is-selected .btn-select {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-link {
+      height: 39px;
+      padding: 0 11px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn-link:hover {
+      background: var(--surface-tint);
+      color: var(--text);
+      border-color: var(--border-strong);
+    }
+
+    /* Region 3D Flip Cards (STEP 02) */
+    .region-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      perspective: 1200px;
+    }
+
+    .region-tab {
+      position: relative;
+      padding: 0;
+      border: none;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      min-height: 184px;
+      perspective: 1200px;
+    }
+
+    .region-flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 184px;
+      transform-style: preserve-3d;
+      transition: transform 0.68s var(--ease-resort);
+    }
+
+    .region-tab.is-flipped .region-flip-inner {
+      transform: rotateY(180deg);
+    }
+
+    .region-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: var(--radius-md);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.28s var(--ease-resort), box-shadow 0.32s var(--ease-resort), transform 0.28s var(--ease-resort);
+    }
+
+    .region-face-front {
+      background: linear-gradient(155deg, #ffffff 0%, #f4f1ea 100%);
+      border: 1px solid var(--border-strong);
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .region-tab:not(.is-flipped):hover .region-face-front {
+      border-color: var(--gold);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px rgba(18, 36, 29, 0.11), 0 0 0 1px rgba(166, 130, 70, 0.25);
+    }
+
+    .region-front-star {
+      position: absolute;
+      top: 11px;
+      left: 12px;
+      color: var(--gold);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .region-front-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .region-face-back {
+      transform: rotateY(180deg);
+      background: linear-gradient(145deg, #123b2d 0%, #1a4f3d 100%);
+      border: 1px solid rgba(229, 210, 171, 0.38);
+      color: #ffffff;
+      justify-content: space-between;
+      gap: 8px;
+      box-shadow: 0 16px 32px rgba(18, 59, 45, 0.24);
+    }
+
+    .region-tab.is-flipped:hover .region-face-back {
+      box-shadow: 0 20px 40px rgba(18, 59, 45, 0.30);
+    }
+
+    .region-back-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .region-back-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .region-back-star {
+      color: #f3d692;
+      font-size: 13px;
+    }
+
+    .region-back-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #f3d692;
+      letter-spacing: 0.02em;
+    }
+
+    .region-pros {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11.5px;
+      line-height: 1.4;
+      color: rgba(246, 244, 239, 0.92);
+    }
+
+    .region-pros li {
+      position: relative;
+      padding-left: 11px;
+    }
+
+    .region-pros li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #f3d692;
+    }
+
+    /* STEP 06 Dining & Sightseeing */
+    .local-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .local-col {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .local-col-title {
+      margin: 0;
+      font-size: 15.5px;
+      font-weight: 800;
+      color: var(--text);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .local-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .local-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      transition: transform 0.26s var(--ease-resort), box-shadow 0.26s ease, border-color 0.26s ease;
+    }
+
+    .local-item:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--gold);
+    }
+
+    .local-item-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .local-item-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .local-item-meta {
+      margin-top: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    /* STEP 07 Route Map */
+    .route-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .map-card {
+      background: #e9f2f4;
+      border: 1px solid rgba(21, 92, 110, 0.20);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .okinawa-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #e1f0f5 0%, #d2e7ef 100%);
+    }
+
+    @keyframes routeDash {
+      to {
+        stroke-dashoffset: -32;
+      }
+    }
+
+    .route-line-animated {
+      animation: routeDash 2.6s linear infinite;
+    }
+
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+
+    .route-details {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .point-chips {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .point-chip {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: transform 0.24s var(--ease-resort), box-shadow 0.24s ease, border-color 0.24s ease;
+    }
+
+    .point-chip:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+      border-color: var(--gold);
+    }
+
+    .point-chip-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .point-role {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .point-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .point-note {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .timeline-box {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .timeline-title {
+      margin: 0;
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .timeline-row {
+      display: flex;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      padding-bottom: 9px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .timeline-row:last-child {
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .timeline-day {
+      flex: 0 0 92px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .route-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(18px);
+      background: rgba(18, 36, 29, 0.95);
+      backdrop-filter: blur(8px);
+      color: #f6f4ef;
+      border: 1px solid rgba(229, 210, 171, 0.35);
+      padding: 11px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s var(--ease-resort), transform 0.28s var(--ease-resort);
+      z-index: 60;
+      white-space: nowrap;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* STEP 08 Companion Submissions & Modal */
+    .editing-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 15px;
+      margin-bottom: 14px;
+      background: var(--gold-soft);
+      border: 1px solid rgba(166, 130, 70, 0.42);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: #5b4012;
+    }
+
+    .submission-summary-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #f3f7f4 0%, #faf6ed 100%);
+      border: 1px solid rgba(18, 59, 45, 0.16);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .submission-count-strong {
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .submission-consensus {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .submission-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .submission-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.24s var(--ease-resort), box-shadow 0.24s ease, border-color 0.24s ease;
+    }
+
+    .submission-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--gold);
+    }
+
+    .submission-card.is-editing {
+      border: 2px solid var(--gold);
+      background: #fdfaf2;
+    }
+
+    .submission-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .submission-person {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .submission-order {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .submission-name {
+      margin: 0;
+      font-size: 15.5px;
+      font-weight: 800;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .submission-time {
+      font-size: 11.5px;
+      color: var(--text-subtle);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .submission-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      font-size: 12.5px;
+    }
+
+    .submission-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(18, 55, 42, 0.08);
+    }
+
+    .submission-row:last-child {
+      border-bottom: none;
+    }
+
+    .submission-row-label {
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .submission-row-value {
+      color: var(--text);
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .submission-note {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .submission-card-foot {
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .submission-budget {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .submission-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-danger-outline {
+      border-color: rgba(169, 59, 48, 0.35);
+      color: var(--coral);
+    }
+
+    .btn-danger-outline:hover {
+      border-color: var(--coral);
+      background: #fdf2f1;
+    }
+
+    .submission-empty {
+      text-align: center;
+      padding: 28px 18px;
+      background: var(--surface-alt);
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      font-size: 13.5px;
+    }
+
+    /* Submit / Edit Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(12, 26, 20, 0.56);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .modal-dialog {
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--surface);
+      border: 1px solid rgba(166, 130, 70, 0.35);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .modal-subtitle {
+      margin: 4px 0 0;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-alt);
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .modal-close:hover {
+      background: var(--surface-tint);
+    }
+
+    .modal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .modal-field label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .modal-input,
+    .modal-select {
+      width: 100%;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      color: var(--text);
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: inherit;
+    }
+
+    .modal-input:focus,
+    .modal-select:focus {
+      outline: 2px solid var(--gold);
+      outline-offset: 1px;
+      border-color: var(--accent);
+    }
+
+    .modal-preview {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 13px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-preview-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+
+    .modal-preview-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .modal-preview-row span {
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .modal-preview-row strong {
+      color: var(--text);
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .modal-edit-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .modal-foot {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .step-section.reveal-pending {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .region-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .local-grid {
+        grid-template-columns: 1fr;
+      }
+      .route-layout {
+        grid-template-columns: 1fr;
+      }
+      .point-chips {
+        grid-template-columns: 1fr;
+      }
+      .submission-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .top-inner {
+        padding: 10px 14px;
+        gap: 8px;
+      }
+      .brand-title {
+        font-size: 15.5px;
+      }
+      .summary-grid {
+        gap: 6px;
+      }
+      .summary-box {
+        padding: 7px 10px;
+      }
+      .summary-main {
+        font-size: 14px;
+      }
+      .selection-strip {
+        display: none;
+      }
+      .container {
+        padding: 14px 12px 56px;
+        gap: 20px;
+      }
+      .resort-hero, .hero-slides {
+        min-height: 235px;
+        height: 235px;
+      }
+      .hero-content {
+        padding: 20px 18px;
+      }
+      .hero-subline {
+        font-size: 12.5px;
+      }
+      .step-section {
+        padding: 18px 14px;
+        border-radius: var(--radius-lg);
+      }
+      .scroll-hint {
+        display: none;
+      }
+      .item-card {
+        flex: 0 0 82vw;
+        width: 82vw;
+        max-width: 310px;
+      }
+      .top-actions {
+        width: 100%;
+      }
+      .top-actions .btn {
+        flex: 1;
+        padding: 6px 8px;
+        font-size: 12px;
+      }
+    }
+  </style>
+<script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+<body>
+  <header class="top-summary" id="top-summary">
+    <div class="top-inner">
+      <div class="top-bar-row">
+        <div class="brand-group">
+          <h1 class="brand-title serif">오키나와 4인 골프 투어 플래너</h1>
+          <span class="brand-meta">4인 기준 · 일요일 입국 / 월요일 1R / 화요일 2R 및 귀국</span>
+        </div>
+        <div class="top-actions">
+          <button type="button" class="btn" id="btn-fb-login" data-action="firebase-login">관리자 로그인</button>
+          <button type="button" class="btn btn-gold" id="btn-fb-save" data-action="firebase-save" hidden>DB 저장</button>
+          <button type="button" class="btn" id="btn-fb-logout" data-action="firebase-logout" hidden>로그아웃</button>
+          <button type="button" class="btn" data-action="reset-prices">금액 0 초기화</button>
+          <button type="button" class="btn btn-ocean" data-action="scroll-route">동선 확인</button>
+          <button type="button" class="btn" data-action="copy-kakao">카톡 요약 복사</button>
+          <button type="button" class="btn" id="btn-export-html" data-action="open-export-modal" hidden>HTML 받기</button>
+          <button type="button" class="btn btn-primary" id="btn-open-submit" data-action="open-submit-modal">제출하기</button>
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-box highlight">
+          <span class="summary-label">4인 합계 예상</span>
+          <span class="summary-main tabular" id="total-krw">0원</span>
+          <span class="summary-sub tabular" id="total-jpy">¥0</span>
+        </div>
+        <div class="summary-box">
+          <span class="summary-label">1인당 예상 금액</span>
+          <span class="summary-main tabular" id="per-krw">0원</span>
+          <span class="summary-sub tabular" id="per-jpy">¥0</span>
+        </div>
+        <div class="summary-box">
+          <label class="summary-label" for="exchange-rate-input">기준 환율 (100¥ 당 원화)</label>
+          <div class="rate-box">
+            <span class="rate-prefix">100¥ =</span>
+            <input type="number" id="exchange-rate-input" class="rate-input tabular" min="1" step="1" value="860" data-action="rate-change" />
+            <span class="rate-prefix">원</span>
+          </div>
+        </div>
+        <div class="summary-box">
+          <span class="summary-label">선택 권역 · 항목별 합산</span>
+          <span class="summary-main" id="summary-region-label">나하 권역</span>
+          <span class="summary-sub tabular" id="breakdown-line">차량 0 · 1R 0 · 2R 0 · 숙소 0</span>
+        </div>
+      </div>
+
+      <div class="selection-strip" id="selection-strip"></div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="resort-hero" id="resort-hero" aria-label="오키나와 리조트 투어 쇼케이스">
+      <div class="hero-slides" id="hero-slides"></div>
+      <div class="hero-scrim"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">Okinawa Private Golf Retreat · 4 Players</div>
+        <div class="hero-text-group" id="hero-text-group">
+          <h2 class="hero-headline serif" id="hero-headline"></h2>
+          <p class="hero-subline" id="hero-subline"></p>
+        </div>
+        <div class="hero-bottom-bar">
+          <div class="hero-dots" id="hero-dots"></div>
+          <div class="hero-nav-group">
+            <button type="button" class="hero-nav-btn" data-action="hero-prev" aria-label="이전 슬라이드">‹</button>
+            <button type="button" class="hero-nav-btn" data-action="hero-next" aria-label="다음 슬라이드">›</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="step-section is-visible" id="step-01">
+      <div class="step-header">
+        <div class="step-title-wrap">
+          <span class="step-kicker">STEP 01</span>
+          <h2 class="step-title serif">차량 선택 · 4인 기준 총합</h2>
+          <p class="step-desc">공식 4인 투어 렌터카 후보를 비교하고 실사 사진 업로드 및 4인 기준 대여 총합 금액을 입력하세요.</p>
+        </div>
+        <div class="track-controls">
+          <span class="scroll-hint">좌우 슬라이드</span>
+          <button type="button" class="track-arrow-btn" data-action="track-prev" data-target="vehicle-track" aria-label="이전 차량">‹</button>
+          <button type="button" class="track-arrow-btn" data-action="track-next" data-target="vehicle-track" aria-label="다음 차량">›</button>
+        </div>
+      </div>
+      <div class="card-track" id="vehicle-track"></div>
+    </section>
+
+    <section class="step-section is-visible" id="step-02">
+      <div class="step-header">
+        <div class="step-title-wrap">
+          <span class="step-kicker">STEP 02</span>
+          <h2 class="step-title serif">숙소 권역 선택</h2>
+          <p class="step-desc">권역을 선택하면 STEP 03~07의 라운드 코스, 2박 숙소, 먹거리, 동선 지도가 부드럽게 전환됩니다.</p>
+        </div>
+      </div>
+      <div class="region-tabs" id="region-tabs"></div>
+    </section>
+
+    <section class="step-section reveal-pending" id="step-03">
+      <div class="fade-stage" id="stage-step-03">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-kicker">STEP 03</span>
+            <h2 class="step-title serif">월요일 라운드 코스 (1R · 1인 총액 기준)</h2>
+            <p class="step-desc" id="mon-region-desc">선택한 권역에 최적화된 월요일 18홀 코스 후보입니다. 그린피는 1인 총액(세금포함) 기준으로 명시·입력됩니다.</p>
+          </div>
+          <div class="track-controls">
+            <span class="scroll-hint">좌우 슬라이드</span>
+            <button type="button" class="track-arrow-btn" data-action="track-prev" data-target="mon-course-track" aria-label="이전 코스">‹</button>
+            <button type="button" class="track-arrow-btn" data-action="track-next" data-target="mon-course-track" aria-label="다음 코스">›</button>
+          </div>
+        </div>
+        <div class="gora-banner" role="note">
+          <span>⛳</span>
+          <div>
+            <strong>라쿠텐 GORA 12/21(월) 실조회 · 1인 총액(세금포함) 기준:</strong>
+            미야코지마·야에야마(외곽 섬 3곳), 10H Par3 숏코스(니시하라) 및 현민 한정·9H 하프·나이트·2조 6인 이상·미숙박 전용 플랜을 제외했습니다.
+            <strong>그린피는 1인 기준 총액만 입력·표시</strong>되며(렌터카/숙소는 4인 총합 기준), 상단 전체 예산에는 자동으로 4인분(×4)이 합산됩니다.
+          </div>
+        </div>
+        <div class="card-track" id="mon-course-track"></div>
+      </div>
+    </section>
+
+    <section class="step-section reveal-pending" id="step-04">
+      <div class="fade-stage" id="stage-step-04">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-kicker">STEP 04</span>
+            <h2 class="step-title serif">화요일 라운드 코스 (2R · 귀국일 · 1인 총액 기준)</h2>
+            <p class="step-desc" id="tue-region-desc">12/22(화) 라쿠텐 GORA 실조회 기준, 귀국 당일 오전 티오프 및 나하공항 복귀 동선에 맞춘 코스입니다.</p>
+          </div>
+          <div class="track-controls">
+            <span class="scroll-hint">좌우 슬라이드</span>
+            <button type="button" class="track-arrow-btn" data-action="track-prev" data-target="tue-course-track" aria-label="이전 코스">‹</button>
+            <button type="button" class="track-arrow-btn" data-action="track-next" data-target="tue-course-track" aria-label="다음 코스">›</button>
+          </div>
+        </div>
+        <div class="gora-banner" role="note">
+          <span>🗓️</span>
+          <div>
+            <strong>라쿠텐 GORA 12/22(화) 실조회 반영:</strong>
+            화요일 미노출 코스(바쇼포·벨비치), 외곽 섬(미야코·야에야마) 및 숏코스(니시하라)를 제외하고,
+            <strong>류큐 골프 클럽(전조 캐디 오전 스루 37,285엔)</strong>을 남부 후보에 추가했습니다.
+            오후/13시대·일몰·현민·나이트·9H 하프·2조 6인 이상·비숙박전용 플랜을 제외하고 화요일 실제 요금(오키나와 CC 15,990엔 등)을 적용했습니다.
+          </div>
+        </div>
+        <div class="notice-banner" role="note">
+          <span>✈️</span>
+          <div>
+            <strong>귀국 항공편 시간 여유 확인 안내:</strong>
+            화요일 2R 종료 후 샤워, 렌터카 주유·반납 및 나하공항 수하물 위탁(출발 최소 2시간 30분 전 도착 권장)을 고려하여 <strong>오전 07:00~08:30 티오프</strong> 또는 공항 이동 시간이 짧은 코스를 우선 권장합니다.
+          </div>
+        </div>
+        <div class="card-track" id="tue-course-track"></div>
+      </div>
+    </section>
+
+    <section class="step-section reveal-pending" id="step-05">
+      <div class="fade-stage" id="stage-step-05">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-kicker">STEP 05</span>
+            <h2 class="step-title serif">숙소 선택 (일·월 2박 기준)</h2>
+            <p class="step-desc" id="hotel-region-desc">선택한 권역의 2박 4인(2트윈 등) 기준 숙소 후보입니다.</p>
+          </div>
+          <div class="track-controls">
+            <span class="scroll-hint">좌우 슬라이드</span>
+            <button type="button" class="track-arrow-btn" data-action="track-prev" data-target="hotel-track" aria-label="이전 숙소">‹</button>
+            <button type="button" class="track-arrow-btn" data-action="track-next" data-target="hotel-track" aria-label="다음 숙소">›</button>
+          </div>
+        </div>
+        <div class="card-track" id="hotel-track"></div>
+      </div>
+    </section>
+
+    <section class="step-section reveal-pending" id="step-06">
+      <div class="fade-stage" id="stage-step-06">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-kicker">STEP 06</span>
+            <h2 class="step-title serif">숙소 주변 관광 및 먹거리</h2>
+            <p class="step-desc" id="local-region-desc">라운드 후 저녁 회식과 가벼운 산책에 맞춘 권역별 추천 리스트입니다.</p>
+          </div>
+        </div>
+        <div class="local-grid" id="local-grid"></div>
+      </div>
+    </section>
+
+    <section class="step-section reveal-pending" id="step-07">
+      <div class="fade-stage" id="stage-step-07">
+        <div class="step-header">
+          <div class="step-title-wrap">
+            <span class="step-kicker">STEP 07</span>
+            <h2 class="step-title serif">동선 확인 (공항 · 숙소 · 월 1R · 화 2R)</h2>
+            <p class="step-desc">오키나와 본섬 지도 위에서 일요일 입국부터 화요일 귀국까지의 이동 경로를 확인하세요.</p>
+          </div>
+        </div>
+        <div class="route-layout" id="route-layout"></div>
+      </div>
+    </section>
+
+    <section class="step-section reveal-pending" id="step-08">
+      <div class="step-header">
+        <div class="step-title-wrap">
+          <span class="step-kicker">STEP 08</span>
+          <h2 class="step-title serif">일행 선택 제출 현황</h2>
+          <p class="step-desc">각 일행이 선택한 차량·권역·코스·숙소 내역이 하단에 실시간으로 기록되며 언제든 수정할 수 있습니다.</p>
+        </div>
+        <div class="track-controls">
+          <button type="button" class="btn btn-primary" id="btn-bottom-submit" data-action="open-submit-modal">내 선택 제출하기</button>
+        </div>
+      </div>
+      <div id="editing-banner-slot"></div>
+      <div id="submissions-container"></div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="submit-modal" hidden role="dialog" aria-modal="true" aria-labelledby="submit-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <div>
+          <h2 class="modal-title serif" id="submit-modal-title">선택 내역 제출하기</h2>
+          <p class="modal-subtitle" id="submit-modal-subtitle">이름을 입력하고 선택한 항목을 확인한 뒤 제출해 주세요.</p>
+        </div>
+        <button type="button" class="modal-close" data-action="close-submit-modal" aria-label="닫기">×</button>
+      </div>
+      <form class="modal-form" id="submit-modal-form">
+        <div class="modal-field">
+          <label for="modal-member-name">이름 (필수)</label>
+          <input type="text" id="modal-member-name" class="modal-input" maxlength="40" placeholder="이름을 입력하세요 (예: 김철수)" required />
+        </div>
+        <div class="modal-field">
+          <label for="modal-member-note">한줄 메모 (선택)</label>
+          <input type="text" id="modal-member-note" class="modal-input" maxlength="160" placeholder="희망 티오프, 조식/룸타입 의견 등 (선택)" />
+        </div>
+        <div id="modal-selection-area"></div>
+        <div class="modal-foot">
+          <button type="button" class="btn" id="btn-modal-pick-cards" data-action="load-edit-to-planner" hidden>화면 카드로 이동해 고르기</button>
+          <button type="button" class="btn" data-action="close-submit-modal">취소</button>
+          <button type="submit" class="btn btn-primary" id="btn-modal-confirm">제출하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="export-modal" hidden role="dialog" aria-modal="true" aria-labelledby="export-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <div>
+          <h2 class="modal-title serif" id="export-modal-title">GitHub 업로드용 index.html 받기</h2>
+          <p class="modal-subtitle">모바일에서 GitHub에 파일 1개만 올려 바로 배포할 수 있는 단독 HTML 파일입니다.</p>
+        </div>
+        <button type="button" class="modal-close" data-action="close-export-modal" aria-label="닫기">×</button>
+      </div>
+      <div class="modal-form">
+        <div class="modal-preview">
+          <div class="modal-preview-row"><span>방법 A (파일 업로드)</span><strong>아래 다운로드 후 GitHub &gt; Add file &gt; Upload files</strong></div>
+          <div class="modal-preview-row"><span>방법 B (복사·붙여넣기)</span><strong>코드 복사 후 GitHub &gt; Create new file &gt; index.html</strong></div>
+        </div>
+        <textarea id="export-code-box" class="modal-input" rows="5" readonly hidden style="font-family:monospace;font-size:11px;line-height:1.4;"></textarea>
+        <div class="modal-foot">
+          <button type="button" class="btn" data-action="copy-standalone-html">전체 코드 복사</button>
+          <button type="button" class="btn btn-primary" data-action="download-standalone-html">index.html 다운로드</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      onAuthStateChanged,
+      signInWithPopup,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+    import {
+      collection,
+      deleteDoc,
+      doc,
+      getDoc,
+      getDocFromServer,
+      getFirestore,
+      onSnapshot,
+      query,
+      serverTimestamp,
+      setDoc,
+      updateDoc,
+      where
+    } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      projectId: "project-ceb9f86e-c619-41fd-925",
+      appId: "1:274751092267:web:82e252edd618a7dc975c6e",
+      apiKey: "AIzaSyAmQWQmViqsUraGMx_PalZyVcctkN6mJec",
+      authDomain: "project-ceb9f86e-c619-41fd-925.firebaseapp.com",
+      firestoreDatabaseId: "ai-studio-4-427cf37e-5862-4c2b-a9ba-65f89bb67392",
+      storageBucket: "project-ceb9f86e-c619-41fd-925.firebasestorage.app",
+      messagingSenderId: "274751092267",
+      measurementId: "",
+      oAuthClientId: "274751092267-jncu9m42e1lhhudu8jm7h7rc9us8l7t2.apps.googleusercontent.com",
+      recaptchaSiteKey: ""
+    };
+
+    const ADMIN_EMAIL = "parkleo0503@gmail.com";
+    const VALID_REGIONS = new Set(["naha", "chatan", "onna", "resort"]);
+    const MAX_ID_LEN = 64;
+    const MAX_EXCHANGE_RATE = 100000;
+    const MAX_PRICES_KEYS = 80;
+    const MAX_PHOTO_KEY_LEN = 80;
+    const MAX_DATA_URL_LEN = 750000;
+    const DATA_URL_PATTERN = /^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+
+    const OperationType = {
+      CREATE: "create",
+      UPDATE: "update",
+      DELETE: "delete",
+      LIST: "list",
+      GET: "get",
+      WRITE: "write"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+    const auth = getAuth(app);
+
+    function handleFirestoreError(error, operationType, path) {
+      const errInfo = {
+        error: error instanceof Error ? error.message : String(error),
+        authInfo: {
+          userId: auth.currentUser?.uid,
+          email: auth.currentUser?.email,
+          emailVerified: auth.currentUser?.emailVerified,
+          isAnonymous: auth.currentUser?.isAnonymous,
+          tenantId: auth.currentUser?.tenantId,
+          providerInfo:
+            auth.currentUser?.providerData?.map((provider) => ({
+              providerId: provider.providerId,
+              email: provider.email
+            })) || []
+        },
+        operationType,
+        path
+      };
+      console.error("Firestore Error: ", JSON.stringify(errInfo));
+      throw new Error(JSON.stringify(errInfo));
+    }
+
+    async function testConnection() {
+      try {
+        await getDocFromServer(doc(db, "test", "connection"));
+      } catch (error) {
+        if (error instanceof Error && error.message.includes("the client is offline")) {
+          console.error("Please check your Firebase configuration.");
+        }
+      }
+    }
+
+    void testConnection();
+
+    let currentUser = null;
+    let currentIsAdmin = false;
+    let tourDocExists = false;
+    const remotePhotoIds = new Set();
+    const remotePhotosMap = {};
+    let latestTourData = null;
+    let latestSubmissions = [];
+    let bridgeCallbacks = {};
+    let listenersStarted = false;
+
+    function toPhotoDocId(photoKey) {
+      return photoKey.replace(/[^a-zA-Z0-9_\-]/g, "_").slice(0, 128);
+    }
+
+    function clampString(val, maxLen, fallback) {
+      const s = typeof val === "string" ? val.trim() : "";
+      if (!s) return fallback;
+      return s.slice(0, maxLen);
+    }
+
+    function clampBoundNumber(value, maxVal) {
+      const n = Math.round(Number(value) || 0);
+      if (n < 0) return 0;
+      return Math.min(n, maxVal);
+    }
+
+    function sanitizePrices(rawPrices) {
+      const out = {};
+      const keys = Object.keys(rawPrices || {}).slice(0, MAX_PRICES_KEYS);
+      for (const key of keys) {
+        if (!key || key.length > 80) continue;
+        const entry = rawPrices[key];
+        if (!entry || typeof entry !== "object") continue;
+        const krw = Math.max(0, Math.round(Number(entry.krw) || 0));
+        const jpy = Math.max(0, Math.round(Number(entry.jpy) || 0));
+        const source = entry.source === "krw" ? "krw" : "jpy";
+        const customEdited = Boolean(entry.customEdited);
+        out[key] = { krw, jpy, source, customEdited };
+      }
+      return out;
+    }
+
+    function sanitizeTourPayload(input) {
+      const regionId = VALID_REGIONS.has(input.regionId) ? input.regionId : "naha";
+      const rawRate = Number(input.exchangeRate);
+      const exchangeRate =
+        Number.isFinite(rawRate) && rawRate >= 0 && rawRate <= MAX_EXCHANGE_RATE
+          ? Math.round(rawRate * 100) / 100
+          : 860;
+      return {
+        regionId,
+        selectedVehicleId: clampString(input.selectedVehicleId, MAX_ID_LEN, "voxy"),
+        selectedMonCourseId: clampString(input.selectedMonCourseId, MAX_ID_LEN, "southern_links"),
+        selectedTueCourseId: clampString(input.selectedTueCourseId, MAX_ID_LEN, "palm_hills"),
+        selectedHotelId: clampString(input.selectedHotelId, MAX_ID_LEN, "naha_loisir"),
+        exchangeRate,
+        prices: sanitizePrices(input.prices)
+      };
+    }
+
+    function parseRemoteTour(data) {
+      const rawPrices = data.prices && typeof data.prices === "object" ? data.prices : {};
+      return sanitizeTourPayload({
+        regionId: String(data.regionId || "naha"),
+        selectedVehicleId: String(data.selectedVehicleId || "voxy"),
+        selectedMonCourseId: String(data.selectedMonCourseId || "southern_links"),
+        selectedTueCourseId: String(data.selectedTueCourseId || "palm_hills"),
+        selectedHotelId: String(data.selectedHotelId || "naha_loisir"),
+        exchangeRate: Number(data.exchangeRate ?? 860),
+        prices: rawPrices
+      });
+    }
+
+    async function resolveIsAdmin(user) {
+      if (!user || !user.emailVerified) {
+        return false;
+      }
+      if (user.email === ADMIN_EMAIL) {
+        return true;
+      }
+      const path = `admins/${user.uid}`;
+      try {
+        const snap = await getDoc(doc(db, "admins", user.uid));
+        return snap.exists();
+      } catch (error) {
+        handleFirestoreError(error, OperationType.GET, path);
+      }
+    }
+
+    function notifyAuthState() {
+      bridgeCallbacks.onAuthChanged?.({
+        signedIn: Boolean(currentUser),
+        isAdmin: currentIsAdmin,
+        email: currentUser?.email ?? null
+      });
+    }
+
+    function startPublicListeners() {
+      if (listenersStarted) return;
+      listenersStarted = true;
+
+      const tourPath = "tours/default";
+      onSnapshot(
+        doc(db, "tours", "default"),
+        (snap) => {
+          tourDocExists = snap.exists();
+          if (snap.exists()) {
+            latestTourData = parseRemoteTour(snap.data());
+            bridgeCallbacks.onRemoteTour?.(latestTourData);
+          }
+        },
+        (error) => {
+          handleFirestoreError(error, OperationType.GET, tourPath);
+        }
+      );
+
+      const photosPath = "photos";
+      const photosQuery = query(collection(db, "photos"), where("visibility", "==", "public"));
+      onSnapshot(
+        photosQuery,
+        (snapshot) => {
+          remotePhotoIds.clear();
+          for (const k of Object.keys(remotePhotosMap)) {
+            delete remotePhotosMap[k];
+          }
+          snapshot.forEach((docSnap) => {
+            remotePhotoIds.add(docSnap.id);
+            const data = docSnap.data();
+            if (typeof data.photoKey === "string" && typeof data.dataUrl === "string") {
+              remotePhotosMap[data.photoKey] = data.dataUrl;
+            }
+          });
+          bridgeCallbacks.onRemotePhotos?.({ ...remotePhotosMap });
+        },
+        (error) => {
+          handleFirestoreError(error, OperationType.LIST, photosPath);
+        }
+      );
+
+      const submissionsPath = "submissions";
+      const submissionsQuery = query(collection(db, "submissions"), where("visibility", "==", "public"));
+      onSnapshot(
+        submissionsQuery,
+        (snapshot) => {
+          const items = [];
+          snapshot.forEach((docSnap) => {
+            const d = docSnap.data();
+            const createdTs = d.createdAt;
+            const updatedTs = d.updatedAt;
+            const createdAtMs =
+              createdTs && typeof createdTs.toMillis === "function" ? createdTs.toMillis() : Date.now();
+            const updatedAtMs =
+              updatedTs && typeof updatedTs.toMillis === "function" ? updatedTs.toMillis() : createdAtMs;
+            items.push({
+              id: docSnap.id,
+              memberName: String(d.memberName || "일행"),
+              note: typeof d.note === "string" ? d.note : "",
+              regionId: VALID_REGIONS.has(String(d.regionId)) ? String(d.regionId) : "naha",
+              selectedVehicleId: String(d.selectedVehicleId || "voxy"),
+              selectedMonCourseId: String(d.selectedMonCourseId || "southern_links"),
+              selectedTueCourseId: String(d.selectedTueCourseId || "palm_hills"),
+              selectedHotelId: String(d.selectedHotelId || "naha_loisir"),
+              totalKrw: Math.max(0, Math.round(Number(d.totalKrw) || 0)),
+              perPersonKrw: Math.max(0, Math.round(Number(d.perPersonKrw) || 0)),
+              totalJpy: Math.max(0, Math.round(Number(d.totalJpy) || 0)),
+              perPersonJpy: Math.max(0, Math.round(Number(d.perPersonJpy) || 0)),
+              createdAtMs,
+              updatedAtMs
+            });
+          });
+          items.sort((a, b) => a.createdAtMs - b.createdAtMs || a.id.localeCompare(b.id));
+          latestSubmissions = items;
+          bridgeCallbacks.onRemoteSubmissions?.([...latestSubmissions]);
+        },
+        (error) => {
+          handleFirestoreError(error, OperationType.LIST, submissionsPath);
+        }
+      );
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (!user) {
+        currentIsAdmin = false;
+        notifyAuthState();
+        return;
+      }
+      void resolveIsAdmin(user)
+        .then((isAdmin) => {
+          currentIsAdmin = isAdmin;
+          notifyAuthState();
+        })
+        .catch((err) => {
+          console.error("Admin verification failed:", err);
+          currentIsAdmin = false;
+          notifyAuthState();
+        });
+    });
+
+    async function signInAdmin() {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const isAdmin = await resolveIsAdmin(result.user);
+        currentUser = result.user;
+        currentIsAdmin = isAdmin;
+        notifyAuthState();
+        if (isAdmin) {
+          bridgeCallbacks.onToast?.("관리자 로그인 완료 — DB 저장 및 실사 업로드가 활성화되었습니다.");
+        } else {
+          bridgeCallbacks.onToast?.("관리자 계정이 아니므로 읽기/미리보기 전용 모드로 동작합니다.");
+        }
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        if (!msg.includes("popup-closed-by-user")) {
+          bridgeCallbacks.onToast?.("로그인 중 오류가 발생했습니다. 팝업 허용 여부를 확인하세요.");
+        }
+      }
+    }
+
+    async function signOutAdmin() {
+      await signOut(auth);
+      currentUser = null;
+      currentIsAdmin = false;
+      notifyAuthState();
+      bridgeCallbacks.onToast?.("로그아웃되었습니다.");
+    }
+
+    async function saveSinglePhoto(photoKey, dataUrl) {
+      if (!currentUser || !currentIsAdmin) {
+        return false;
+      }
+      const cleanKey = photoKey.trim().slice(0, MAX_PHOTO_KEY_LEN);
+      if (cleanKey.length < 3) return false;
+      if (dataUrl.length < 20 || dataUrl.length > MAX_DATA_URL_LEN || !DATA_URL_PATTERN.test(dataUrl)) {
+        bridgeCallbacks.onToast?.("이미지 크기가 크거나 지원 형식이 아닙니다 (JPEG/PNG/WEBP 권장).");
+        return false;
+      }
+
+      const photoId = toPhotoDocId(cleanKey);
+      const path = `photos/${photoId}`;
+      const ref = doc(db, "photos", photoId);
+
+      try {
+        const existingSnap = await getDoc(ref);
+        if (existingSnap.exists()) {
+          await updateDoc(ref, {
+            photoKey: cleanKey,
+            dataUrl,
+            updatedBy: currentUser.uid,
+            updatedAt: serverTimestamp()
+          });
+        } else {
+          await setDoc(ref, {
+            visibility: "public",
+            photoKey: cleanKey,
+            dataUrl,
+            createdBy: currentUser.uid,
+            updatedBy: currentUser.uid,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+        }
+        remotePhotoIds.add(photoId);
+        remotePhotosMap[cleanKey] = dataUrl;
+        return true;
+      } catch (error) {
+        handleFirestoreError(
+          error,
+          remotePhotoIds.has(photoId) ? OperationType.UPDATE : OperationType.CREATE,
+          path
+        );
+      }
+    }
+
+    async function deleteSinglePhoto(photoKey) {
+      if (!currentUser || !currentIsAdmin) {
+        return false;
+      }
+      const photoId = toPhotoDocId(photoKey);
+      const path = `photos/${photoId}`;
+      try {
+        await deleteDoc(doc(db, "photos", photoId));
+        remotePhotoIds.delete(photoId);
+        delete remotePhotosMap[photoKey];
+        return true;
+      } catch (error) {
+        handleFirestoreError(error, OperationType.DELETE, path);
+      }
+    }
+
+    async function saveTourAndPhotos(tour, localPhotos) {
+      if (!currentUser || !currentIsAdmin) {
+        bridgeCallbacks.onToast?.("관리자 로그인 후 DB에 저장할 수 있습니다.");
+        return false;
+      }
+
+      const cleanTour = sanitizeTourPayload(tour);
+      const tourPath = "tours/default";
+      const tourRef = doc(db, "tours", "default");
+
+      try {
+        const existingTour = await getDoc(tourRef);
+        if (existingTour.exists() || tourDocExists) {
+          await updateDoc(tourRef, {
+            regionId: cleanTour.regionId,
+            selectedVehicleId: cleanTour.selectedVehicleId,
+            selectedMonCourseId: cleanTour.selectedMonCourseId,
+            selectedTueCourseId: cleanTour.selectedTueCourseId,
+            selectedHotelId: cleanTour.selectedHotelId,
+            exchangeRate: cleanTour.exchangeRate,
+            prices: cleanTour.prices,
+            updatedBy: currentUser.uid,
+            updatedAt: serverTimestamp()
+          });
+        } else {
+          await setDoc(tourRef, {
+            visibility: "public",
+            regionId: cleanTour.regionId,
+            selectedVehicleId: cleanTour.selectedVehicleId,
+            selectedMonCourseId: cleanTour.selectedMonCourseId,
+            selectedTueCourseId: cleanTour.selectedTueCourseId,
+            selectedHotelId: cleanTour.selectedHotelId,
+            exchangeRate: cleanTour.exchangeRate,
+            prices: cleanTour.prices,
+            createdBy: currentUser.uid,
+            updatedBy: currentUser.uid,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+          tourDocExists = true;
+        }
+      } catch (error) {
+        handleFirestoreError(
+          error,
+          tourDocExists ? OperationType.UPDATE : OperationType.CREATE,
+          tourPath
+        );
+      }
+
+      for (const [key, dataUrl] of Object.entries(localPhotos || {})) {
+        if (remotePhotosMap[key] !== dataUrl) {
+          await saveSinglePhoto(key, dataUrl);
+        }
+      }
+
+      bridgeCallbacks.onToast?.("일정·금액·사진이 Firebase DB에 저장되었습니다. 공유 URL에서 모두 볼 수 있습니다.");
+      return true;
+    }
+
+    async function saveSubmission(payload) {
+      const cleanName = typeof payload.memberName === "string" ? payload.memberName.trim().slice(0, 40) : "";
+      if (!cleanName) {
+        bridgeCallbacks.onToast?.("이름을 입력해 주세요.");
+        return null;
+      }
+
+      const cleanNote = typeof payload.note === "string" ? payload.note.trim().slice(0, 160) : "";
+      const cleanFields = {
+        memberName: cleanName,
+        note: cleanNote,
+        regionId: VALID_REGIONS.has(payload.regionId) ? payload.regionId : "naha",
+        selectedVehicleId: clampString(payload.selectedVehicleId, MAX_ID_LEN, "voxy"),
+        selectedMonCourseId: clampString(payload.selectedMonCourseId, MAX_ID_LEN, "southern_links"),
+        selectedTueCourseId: clampString(payload.selectedTueCourseId, MAX_ID_LEN, "palm_hills"),
+        selectedHotelId: clampString(payload.selectedHotelId, MAX_ID_LEN, "naha_loisir"),
+        totalKrw: clampBoundNumber(payload.totalKrw, 100000000),
+        perPersonKrw: clampBoundNumber(payload.perPersonKrw, 50000000),
+        totalJpy: clampBoundNumber(payload.totalJpy, 50000000),
+        perPersonJpy: clampBoundNumber(payload.perPersonJpy, 20000000)
+      };
+
+      const requestedId =
+        typeof payload.id === "string" && /^[a-zA-Z0-9_\-]{1,128}$/.test(payload.id)
+          ? payload.id
+          : "";
+      const isUpdate = Boolean(requestedId);
+      const subId =
+        requestedId || `sub_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+      const path = `submissions/${subId}`;
+      const ref = doc(db, "submissions", subId);
+
+      try {
+        if (isUpdate) {
+          await updateDoc(ref, {
+            ...cleanFields,
+            updatedAt: serverTimestamp()
+          });
+        } else {
+          await setDoc(ref, {
+            visibility: "public",
+            ...cleanFields,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+        }
+        return subId;
+      } catch (error) {
+        handleFirestoreError(error, isUpdate ? OperationType.UPDATE : OperationType.CREATE, path);
+      }
+    }
+
+    async function deleteSubmission(submissionId) {
+      if (!currentUser || !currentIsAdmin) {
+        bridgeCallbacks.onToast?.("제출 내역 삭제는 관리자 로그인 상태에서만 가능합니다.");
+        return false;
+      }
+      if (!/^[a-zA-Z0-9_\-]{1,128}$/.test(submissionId)) {
+        return false;
+      }
+      const path = `submissions/${submissionId}`;
+      try {
+        await deleteDoc(doc(db, "submissions", submissionId));
+        bridgeCallbacks.onToast?.("제출 내역을 삭제했습니다.");
+        return true;
+      } catch (error) {
+        handleFirestoreError(error, OperationType.DELETE, path);
+      }
+    }
+
+    window.OkinawaFirebase = {
+      subscribe(callbacks) {
+        bridgeCallbacks = callbacks;
+        startPublicListeners();
+        notifyAuthState();
+        if (latestTourData) {
+          callbacks.onRemoteTour?.(latestTourData);
+        }
+        if (Object.keys(remotePhotosMap).length > 0) {
+          callbacks.onRemotePhotos?.({ ...remotePhotosMap });
+        }
+        if (latestSubmissions.length > 0) {
+          callbacks.onRemoteSubmissions?.([...latestSubmissions]);
+        }
+      },
+      signInAdmin,
+      signOutAdmin,
+      saveTourAndPhotos,
+      saveSinglePhoto,
+      deleteSinglePhoto,
+      saveSubmission,
+      deleteSubmission,
+      getAuthInfo() {
+        return {
+          signedIn: Boolean(currentUser),
+          isAdmin: currentIsAdmin,
+          email: currentUser?.email ?? null
+        };
+      }
+    };
+
+    window.dispatchEvent(new CustomEvent("okinawa-firebase-ready"));
+  </script>
+  <script>
+    (function () {
+      "use strict";
+
+      var HERO_SLIDES = [
+        {
+          headline: "동중국해 수평선 위, 네 명의 프라이빗 티오프",
+          subline: "일요일 입국부터 월요일 1R, 화요일 2R 귀국까지 권역별 명문 코스와 리조트 동선을 한 번에 설계합니다.",
+          svg:
+            '<svg class="hero-artwork" viewBox="0 0 1200 320" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' +
+              '<defs>' +
+                '<linearGradient id="sky1" x1="0" y1="0" x2="1" y2="1">' +
+                  '<stop offset="0%" stop-color="#11382c"/>' +
+                  '<stop offset="55%" stop-color="#1b5e6d"/>' +
+                  '<stop offset="100%" stop-color="#87b5ba"/>' +
+                "</linearGradient>" +
+                '<linearGradient id="sea1" x1="0" y1="0" x2="0" y2="1">' +
+                  '<stop offset="0%" stop-color="#207b8a"/>' +
+                  '<stop offset="100%" stop-color="#0d3d4a"/>' +
+                "</linearGradient>" +
+                '<linearGradient id="fairway1" x1="0" y1="0" x2="1" y2="0">' +
+                  '<stop offset="0%" stop-color="#194a36"/>' +
+                  '<stop offset="100%" stop-color="#2f6f4c"/>' +
+                "</linearGradient>" +
+              "</defs>" +
+              '<rect width="1200" height="320" fill="url(#sky1)"/>' +
+              '<circle cx="960" cy="86" r="44" fill="#f7e3b5" opacity="0.32"/>' +
+              '<circle cx="960" cy="86" r="26" fill="#fff4d6" opacity="0.55"/>' +
+              '<path d="M0 175 L1200 175 L1200 320 L0 320 Z" fill="url(#sea1)"/>' +
+              '<path d="M0 198 Q320 186 680 202 T1200 194" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" fill="none"/>' +
+              '<path d="M0 240 C260 205 560 232 820 264 C990 284 1110 248 1200 235 L1200 320 L0 320 Z" fill="url(#fairway1)"/>' +
+              '<path d="M740 278 C830 258 940 256 1050 276 C960 296 820 298 740 278 Z" fill="#468e61" opacity="0.85"/>' +
+              '<line x1="932" y1="274" x2="932" y2="210" stroke="#f6f4ef" stroke-width="2.2"/>' +
+              '<path d="M932 210 L962 220 L932 230 Z" fill="#d4af68"/>' +
+            "</svg>"
+        },
+        {
+          headline: "라운드 후 노을이 스며드는 오키나와 리조트 스테이",
+          subline: "나하 · 차탄 · 온나손 · 북부 리조트 권역 선택만으로 숙소·저녁 맛집·산책 스팟이 자연스럽게 연결됩니다.",
+          svg:
+            '<svg class="hero-artwork" viewBox="0 0 1200 320" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' +
+              '<defs>' +
+                '<linearGradient id="sky2" x1="0" y1="0" x2="1" y2="1">' +
+                  '<stop offset="0%" stop-color="#1b2a33"/>' +
+                  '<stop offset="50%" stop-color="#5d4c46"/>' +
+                  '<stop offset="100%" stop-color="#d49b62"/>' +
+                "</linearGradient>" +
+                '<linearGradient id="pool2" x1="0" y1="0" x2="1" y2="0">' +
+                  '<stop offset="0%" stop-color="#164652"/>' +
+                  '<stop offset="100%" stop-color="#2c7580"/>' +
+                "</linearGradient>" +
+              "</defs>" +
+              '<rect width="1200" height="320" fill="url(#sky2)"/>' +
+              '<circle cx="920" cy="145" r="76" fill="#f3c683" opacity="0.28"/>' +
+              '<circle cx="920" cy="145" r="46" fill="#fce1ad" opacity="0.45"/>' +
+              '<rect x="0" y="196" width="1200" height="124" fill="url(#pool2)"/>' +
+              '<path d="M740 196 L1200 196 L1200 228 L700 228 Z" fill="#17241e" opacity="0.72"/>' +
+              '<rect x="820" y="138" width="220" height="58" rx="4" fill="#1f3128" opacity="0.88"/>' +
+              '<rect x="840" y="152" width="38" height="26" fill="#f5d593" opacity="0.7"/>' +
+              '<rect x="892" y="152" width="38" height="26" fill="#f5d593" opacity="0.6"/>' +
+              '<rect x="944" y="152" width="38" height="26" fill="#f5d593" opacity="0.75"/>' +
+              '<path d="M1060 228 Q1080 140 1125 96 M1080 148 Q1125 130 1152 146 M1080 148 Q1040 128 1015 144 M1080 148 Q1100 105 1132 104" stroke="#101e17" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+            "</svg>"
+        },
+        {
+          headline: "환율 계산부터 귀국일 동선까지 한 눈에",
+          subline: "차량 · 1R · 2R · 2박 숙소 견적을 원화/엔화로 실시간 정산하고 카카오톡 공유 요약을 즉시 복사하세요.",
+          svg:
+            '<svg class="hero-artwork" viewBox="0 0 1200 320" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' +
+              '<defs>' +
+                '<linearGradient id="sky3" x1="0" y1="0" x2="1" y2="1">' +
+                  '<stop offset="0%" stop-color="#0f2f25"/>' +
+                  '<stop offset="60%" stop-color="#194c3b"/>' +
+                  '<stop offset="100%" stop-color="#4e806b"/>' +
+                "</linearGradient>" +
+              "</defs>" +
+              '<rect width="1200" height="320" fill="url(#sky3)"/>' +
+              '<path d="M0 245 Q300 180 620 225 T1200 190 L1200 320 L0 320 Z" fill="#133a2c"/>' +
+              '<path d="M0 272 Q420 232 820 262 T1200 242 L1200 320 L0 320 Z" fill="#1d523e"/>' +
+              '<path d="M720 120 C830 85 950 165 1080 96" stroke="#e5d2ab" stroke-width="2" stroke-dasharray="6 6" fill="none" opacity="0.65"/>' +
+              '<circle cx="720" cy="120" r="6" fill="#e5d2ab"/>' +
+              '<circle cx="910" cy="127" r="6" fill="#e5d2ab"/>' +
+              '<circle cx="1080" cy="96" r="7" fill="#ffffff"/>' +
+            "</svg>"
+        }
+      ];
+
+      var REGIONS = [
+        {
+          id: "naha",
+          name: "나하",
+          title: "나하 권역",
+          pros: [
+            "공항 15분 이동 · 입출국 동선 최상",
+            "국제거리 · 노포 맛집 도보 접근",
+            "남부 명문 코스(서던링크스 등) 인접"
+          ]
+        },
+        {
+          id: "chatan",
+          name: "차탄",
+          title: "차탄 권역",
+          pros: [
+            "중부 허브 · 남/북 코스 균형 이동",
+            "아메리칸 빌리지 · 선셋 비치 산책",
+            "리조트 주차 편리 · 대욕장 피로 회복"
+          ]
+        },
+        {
+          id: "onna",
+          name: "온나손",
+          title: "온나손 권역",
+          pros: [
+            "PGM 등 오션뷰 명문 코스 집중",
+            "5성급 해안 리조트 휴양 스테이",
+            "만자모 · 흑돼지/와규 맛집 인접"
+          ]
+        },
+        {
+          id: "resort",
+          name: "리조트",
+          title: "리조트 권역",
+          pros: [
+            "카누차 · 모토부 북부 대자연 힐링",
+            "단지 내 골프·온천·석식 원스톱",
+            "코우리 대교 북부 드라이브 명소"
+          ]
+        }
+      ];
+
+      var VEHICLES = [
+        {
+          id: "voxy",
+          name: "토요타 복시 (Toyota Voxy)",
+          rating: "4.9",
+          specs: "7~8인승 미니밴 · 3열 폴딩 시 캐디백 4개 + 보스턴백 4개 수납 최적 · 하이브리드 연비 우수 · 슬라이딩 도어",
+          searchQuery: "토요타 복시 오키나와 렌터카 골프백 후기"
+        },
+        {
+          id: "delica",
+          name: "미쓰비시 델리카 D:5",
+          rating: "4.7",
+          specs: "디젤 4WD 미니밴 · 높은 차고와 넉넉한 적재 공간 · 중북부 언덕길 및 우천 시 주행 안정감 탁월",
+          searchQuery: "미쓰비시 델리카 D5 오키나와 렌터카 후기"
+        },
+        {
+          id: "odyssey",
+          name: "혼다 오딧세이 (Honda Odyssey)",
+          rating: "4.8",
+          specs: "저상형 프리미엄 미니밴 · 2열 캡틴시트 승차감 최상 · 장거리 고속도로 이동 시 피로도 최소화",
+          searchQuery: "혼다 오딧세이 렌터카 골프백 4개 적재"
+        },
+        {
+          id: "fj",
+          name: "토요타 랜드 크루저 FJ",
+          rating: "4.6",
+          specs: "오프로드 감성 SUV · 개성 있는 외관과 높은 시야 · 캐디백 4개 적재 시 시트 분할/루프 배치 확인 필요",
+          searchQuery: "토요타 랜드크루저 FJ 오키나와 렌터카"
+        }
+      ];
+
+      var COURSES = {
+        southern_links: {
+          id: "southern_links",
+          name: "더 서던 링크스 골프 클럽",
+          rating: "4.8",
+          specs: "남부 야에세 해안 절벽 링크스 코스 · 나하공항 자동차도로 난카와하라 미나미 10km 이내(약 25분) · 4·5인승 카트 셀프",
+          monJpyPerPerson: 19990,
+          tueJpyPerPerson: 19990,
+          monPlanNote: "1인 총액 19,990엔 · 평일 셀프 스루(7·13시대 / 2B할증없음) · 현민한정 제외",
+          tuePlanNote: "1인 총액 19,990엔 · 2명 보증 할증 없음 셀프 스루 (점심포함 21,640엔 선택가능)",
+          flightNote: "귀국일 추천: 오전 셀프 스루 라운드 종료 후 나하공항까지 약 25분 소요로 여유로운 귀국 가능",
+          coord: { x: 120, y: 405 },
+          searchQuery: "더 서던 링크스 골프클럽 오키나와 후기"
+        },
+        palm_hills: {
+          id: "palm_hills",
+          name: "팜힐스 골프 리조트 클럽",
+          rating: "4.6",
+          specs: "남부 이토만 리조트 코스 · 난카와하라 미나미 IC 10km 이내(공항 약 20분) · 4·5인승 카트 셀프(점심 포함 13,990엔~)",
+          monJpyPerPerson: 12990,
+          tueJpyPerPerson: 12990,
+          monPlanNote: "1인 총액 12,990엔 · 셀프 스루(점심 별도) · 점심포함 13,990엔~",
+          tuePlanNote: "1인 총액 12,990엔 · 셀프 스루(점심 별도) · 점심포함 13,990엔 / 조식포함 19,410엔",
+          flightNote: "귀국일 최우선: 나하공항 20분 거리로 화요일 귀국 전 마지막 라운드 동선 압박 최소화",
+          coord: { x: 100, y: 398 },
+          searchQuery: "오키나와 팜힐스 골프리조트 후기"
+        },
+        ryukyu_gc: {
+          id: "ryukyu_gc",
+          name: "류큐 골프 클럽",
+          rating: "4.7",
+          specs: "남부 난죠시 JLPGA 토너먼트 명문 · 난카와하라 키타 IC 10km 이내(공항 약 25분) · 전 조 캐디 동반 4·5인승 카트",
+          monJpyPerPerson: 37285,
+          tueJpyPerPerson: 37285,
+          monPlanNote: "12/21(월) 미노출 · 화요일 전용 예약 가능",
+          tuePlanNote: "1인 총액 37,285엔 · 【전조 캐디 첨부】 평일 오전 스루[조기 예약] (오후 스루 귀국일 제외)",
+          flightNote: "귀국일 추천: 나하공항 약 25분 거리 + 캐디 동반 오전 스루로 매끄러운 진행 후 귀국 최적",
+          coord: { x: 126, y: 386 },
+          searchQuery: "류큐 골프클럽 오키나와 후기"
+        },
+        bashofu: {
+          id: "bashofu",
+          name: "바쇼포 코스 (난죠)",
+          rating: "4.4",
+          specs: "남부 난죠시 위치 · 난카와하라 미나미 IC 10km 이내(공항 약 25~30분) · 리모콘식 승용 카트 평일 1R 18홀",
+          monJpyPerPerson: 8800,
+          tueJpyPerPerson: 8800,
+          monPlanNote: "1인 총액 8,800엔 · 리모콘식 승용 카트 평일 1R 18홀 (가성비 최강)",
+          tuePlanNote: "12/22(화) 미노출 · 월요일 1R 전용",
+          flightNote: "귀국일 안내: 12/22(화) 예약 오픈 플랜 없음",
+          coord: { x: 134, y: 390 },
+          searchQuery: "오키나와 바쇼포 코스 골프 후기"
+        },
+        okinawa_cc: {
+          id: "okinawa_cc",
+          name: "오키나와 컨트리 클럽",
+          rating: "4.5",
+          specs: "중남부 니시하라 위치 · 난카와하라 북 IC 5km 이내(나하 20분/차탄 20분) · 4·5인승 카트 셀프 스루",
+          monJpyPerPerson: 12990,
+          tueJpyPerPerson: 15990,
+          monPlanNote: "1인 총액 12,990엔 · 평일 셀프 스루 (13시대 한정 10,990엔 선택 가능)",
+          tuePlanNote: "1인 총액 15,990엔 · 평일 오전 셀프 스루 (점심보조 20,590엔 · 13시대 13,990엔 귀국일 제외)",
+          flightNote: "귀국일 추천: 나하/우라소에 인접해 공항까지 약 25분. 13시대 한정 플랜 대신 오전 티오프 권장",
+          coord: { x: 132, y: 356 },
+          searchQuery: "오키나와 컨트리 클럽 아코디아 후기"
+        },
+        ocean_castle: {
+          id: "ocean_castle",
+          name: "오션 캐슬 컨트리 클럽",
+          rating: "4.6",
+          specs: "중부 나카구스쿠 만 조망 절경 코스 · 기타나카성 IC 5km 이내(차탄 20분/공항 30분) · 업다운이 매력적인 18홀",
+          monJpyPerPerson: 15490,
+          tueJpyPerPerson: 15490,
+          monPlanNote: "1인 총액 15,490엔 · 평일 스루(일반) · 현민한정·일몰미보장 제외",
+          tuePlanNote: "1인 총액 15,490엔 · 평일 스루(점심 별도) · 점심포함 20,790엔 · 현민한정 제외",
+          flightNote: "귀국일 추천: 차탄 숙소 20분, 공항 약 30~35분 소요로 중부권 체크아웃 후 최적 코스",
+          coord: { x: 146, y: 342 },
+          searchQuery: "오션 캐슬 컨트리 클럽 오키나와 후기"
+        },
+        pgm_okinawa: {
+          id: "pgm_okinawa",
+          name: "PGM 골프 리조트 오키나와 [GRAND]",
+          rating: "4.9",
+          specs: "온나손 대표 명문 코스 · 이시카와 IC 10km 이내 · 동중국해 파노라마 오션뷰와 최상급 그린 컨디션",
+          monJpyPerPerson: 23490,
+          tueJpyPerPerson: 23490,
+          monPlanNote: "1인 총액 23,490엔 · 평일 1R 스루(지정 점심 포함) · 현민·나이트·9H 제외",
+          tuePlanNote: "1인 총액 23,490엔 · 평일 1R 스루(지정 점심 포함) · 현민·나이트·숙박팩 제외",
+          flightNote: "귀국일 주의: 고속도로 경유 나하공항 약 50분 소요. 이른 오전 티오프 및 오후 늦은 항공편 권장",
+          coord: { x: 156, y: 275 },
+          searchQuery: "PGM 골프 리조트 오키나와 후기"
+        },
+        ginoza_cc: {
+          id: "ginoza_cc",
+          name: "기노자 컨트리 클럽",
+          rating: "4.6",
+          specs: "중북부 기노자 위치 · 오키나와 자동차도 기노자 IC 5km 이내 · 점심 포함 4인 승용카트 셀프 스루 가성비 우수",
+          monJpyPerPerson: 17000,
+          tueJpyPerPerson: 17000,
+          monPlanNote: "1인 총액 17,000엔 · 【AM/PM】 평일 셀프 스루(점심 포함)",
+          tuePlanNote: "1인 총액 17,000엔 · 【AM】 평일 셀프 스루(점심 포함) · PM·일몰양승 귀국일 제외",
+          flightNote: "귀국일 안내: 기노자 IC 초인접으로 고속도로 직결(공항 약 55분). 반드시 【AM】 오전 티오프 선택",
+          coord: { x: 186, y: 254 },
+          searchQuery: "기노자 컨트리 클럽 오키나와 후기"
+        },
+        kanehide_kise: {
+          id: "kanehide_kise",
+          name: "카네히데 키세 컨트리 클럽",
+          rating: "4.7",
+          specs: "나고/온나 경계 PGA 개최 명문 · 허다 IC 5km 이내 · 카트 페어웨이 진입 무료(승입 무료)",
+          monJpyPerPerson: 26000,
+          tueJpyPerPerson: 26000,
+          monPlanNote: "1인 총액 26,000엔 · 오전할인/7시대 점심보조권(승입무료) · 2조 6명~ 제외",
+          tuePlanNote: "1인 총액 26,000엔 · 7시대 선착 점심보조권/오전할인(승입무료) · 2조 6명~ 불가 제외",
+          flightNote: "귀국일 주의: 허다 IC 인접이나 공항 약 60~65분 소요. 7시대 선착 플랜 이용 및 오후 늦은 출국 권장",
+          coord: { x: 184, y: 222 },
+          searchQuery: "카네히데 키세 컨트리 클럽 후기"
+        },
+        atta_terrace: {
+          id: "atta_terrace",
+          name: "디 아타 테라스 골프 리조트",
+          rating: "4.7",
+          specs: "온나손 부티크 리조트 코스 · 야카 IC 15km 이내 · 세련된 클럽하우스와 여유로운 리조트 플레이",
+          monJpyPerPerson: 30400,
+          tueJpyPerPerson: 12000,
+          monPlanNote: "1인 총액 30,400엔 · [외래자] 지정 점심 포함 셀프 (07시대 12,000엔 가능 · 현민/숙박전용/9H 제외)",
+          tuePlanNote: "1인 총액 12,000엔 · [이른 아침] 07:00~07:49 평일 특별 플랜 (일몰13:11·9H·현민·숙박전용 제외)",
+          flightNote: "귀국일 추천: 07:00~07:49 이른 아침 플랜 선택 시 낮 12시 전후 라운드 종료 후 공항(55분) 여유 이동",
+          coord: { x: 168, y: 256 },
+          searchQuery: "아타 테라스 골프 리조트 오키나와 후기"
+        },
+        enagic_seki: {
+          id: "enagic_seki",
+          name: "에너지 세 헤이 컨트리 클럽",
+          rating: "4.4",
+          specs: "나고시 세다케 위치 · 카누차 리조트 인접 동해안 코스 · 18H 셀프 스루 + 레스토랑 할인권 포함 실속 코스",
+          monJpyPerPerson: 11000,
+          tueJpyPerPerson: 11000,
+          monPlanNote: "1인 총액 11,000엔 · 평일 셀프 18H 스루(레스토랑 할인권 첨부)",
+          tuePlanNote: "1인 총액 11,000엔 · 평일 셀프 18H 스루(레스토랑 할인권 첨부 · 오전 권장)",
+          flightNote: "귀국일 주의: 나고 동측 연안에서 나하공항까지 약 70~75분 소요. 귀국편 16:00 이후 시 적합",
+          coord: { x: 204, y: 218 },
+          searchQuery: "에나직 세다케 컨트리 클럽 오키나와 후기"
+        },
+        kanucha_gc: {
+          id: "kanucha_gc",
+          name: "카누차 골프 코스",
+          rating: "4.8",
+          specs: "나고 동부 태평양 연안 웅장한 리조트 코스 · 허다/기노자 IC 20km 이내 · 카누차 숙박 시 숙박자 특가 자동 적용",
+          monJpyPerPerson: 24000,
+          tueJpyPerPerson: 24000,
+          monPlanNote: "1인 총액 24,000엔 · [외래자] 평일 셀프/스루 (카누차 숙박 시 20,556엔 자동 전환 · 레이디스 제외)",
+          tuePlanNote: "1인 총액 24,000엔 · [외래자] 평일 셀프/스루 (점심포함 25,000엔 · 카누차 숙박 시 20,556엔 자동 전환)",
+          flightNote: "귀국일 주의: 나하공항까지 약 75~80분 소요. 이른 오전 티오프 또는 저녁 귀국편일 때만 권장",
+          coord: { x: 228, y: 204 },
+          searchQuery: "카누차 골프 코스 오키나와 후기"
+        },
+        belle_beach: {
+          id: "belle_beach",
+          name: "벨 비치 골프 클럽",
+          rating: "4.6",
+          specs: "북부 모토부 반도 오션뷰 코스 · 허다 IC 20km 이내 · 전 홀 에메랄드빛 바다 조망과 합리적 그린피",
+          monJpyPerPerson: 11410,
+          tueJpyPerPerson: 10310,
+          monPlanNote: "1인 총액 11,410엔 · 평일 셀프/스루(일반) (07시대 조조 10,310엔 선택 가능)",
+          tuePlanNote: "12/22(화) 미노출 · 월요일 1R 전용",
+          flightNote: "귀국일 안내: 12/22(화) 예약 오픈 플랜 없음",
+          coord: { x: 162, y: 158 },
+          searchQuery: "벨 비치 골프 클럽 오키나와 후기"
+        }
+      };
+
+      var HOTELS = {
+        naha_loisir: {
+          id: "naha_loisir",
+          name: "로와지르 호텔 나하",
+          rating: "4.7",
+          specs: "나하공항 차로 7분 · 천연 온천 '시마노유' & 실내외 수영장 완비 · 넓은 주차장 및 4인 2트윈 동선 최상",
+          coord: { x: 98, y: 372 },
+          searchQuery: "로와지르 호텔 나하 오키나와 후기"
+        },
+        naha_nest_nishi: {
+          id: "naha_nest_nishi",
+          name: "네스트 호텔 나하 니시",
+          rating: "4.5",
+          specs: "아사히바시역·공항 약 8분 · 모던하고 실속 있는 트윈룸 · 마쓰야마/국제거리 저녁 회식 이동 편리",
+          coord: { x: 102, y: 368 },
+          searchQuery: "네스트 호텔 나하 니시 오키나와 후기"
+        },
+        naha_harborview: {
+          id: "naha_harborview",
+          name: "오키나와 하버뷰 호텔",
+          rating: "4.6",
+          specs: "나하 중심 정원형 클래식 특급 호텔 · 여유로운 객실과 안정적 주차 · 남부 코스·공항 이동 균형 우수",
+          coord: { x: 110, y: 367 },
+          searchQuery: "오키나와 하버뷰 호텔 나하 후기"
+        },
+        chatan_oile: {
+          id: "chatan_oile",
+          name: "오일 바이 지이라 리조트",
+          rating: "4.8",
+          specs: "차탄 감성 리조트형 레지던스 · 넓은 실내 공간과 세련된 인테리어 · 4인 프라이빗 그룹 스테이 최적",
+          coord: { x: 123, y: 324 },
+          searchQuery: "오일 바이 지이라 리조트 오키나와 차탄 후기"
+        },
+        chatan_lagent: {
+          id: "chatan_lagent",
+          name: "라젠크 호텔 오키나와 차탄",
+          rating: "4.6",
+          specs: "아메리칸 빌리지·선셋비치 도보권 · 깔끔한 트윈룸과 합리적 요금 · 주변 식당가·주차 접근성 우수",
+          coord: { x: 124, y: 325 },
+          searchQuery: "라젠크 호텔 오키나와 차탄 후기"
+        },
+        chatan_rana: {
+          id: "chatan_rana",
+          name: "씨사이드 콘도미니엄 라나 자탄",
+          rating: "4.7",
+          specs: "차탄 해안 오션뷰 콘도미니엄 · 넓은 객실과 주방/세탁 시설 완비 · 캐디백 보관 및 주차 매우 편리",
+          coord: { x: 121, y: 322 },
+          searchQuery: "씨사이드 콘도미니엄 라나 자탄 오키나와 후기"
+        },
+        onna_kariyushi: {
+          id: "onna_kariyushi",
+          name: "오키나와 카리유시 비치 리조트 오션 스파",
+          rating: "4.6",
+          specs: "온나손 고지대 오션뷰 리조트 · 대형 노천탕/실내 스파·수영장 완비 · 카네히데 키세·PGM 인접",
+          coord: { x: 174, y: 230 },
+          searchQuery: "오키나와 카리유시 비치 리조트 오션 스파 후기"
+        },
+        onna_bestwestern: {
+          id: "onna_bestwestern",
+          name: "베스트 웨스턴 오키나와 온나 비치",
+          rating: "4.5",
+          specs: "프라이빗 비치 바로 앞 오션프론트 · PGM 골프리조트 약 10분 거리 · 4인 합리적 비치 리조트 스테이",
+          coord: { x: 152, y: 279 },
+          searchQuery: "베스트 웨스턴 오키나와 온나 비치 후기"
+        },
+        resort_kanucha: {
+          id: "resort_kanucha",
+          name: "카누차 (카누차 베이 호텔 & 빌라스)",
+          rating: "4.8",
+          specs: "80만 평 대자연 리조트 · 단지 내 카누차 골프코스·비치·스파 완비 · 넓은 빌라 객실과 즉시 라운드 강점",
+          coord: { x: 224, y: 208 },
+          searchQuery: "카누차 베이 호텔 앤 빌라스 오키나와 후기"
+        },
+        resort_pgm: {
+          id: "resort_pgm",
+          name: "PGM (PGM 골프리조트 오키나와 스테이)",
+          rating: "4.9",
+          specs: "온나손 명문 PGM 골프리조트 중심 집중 라운딩 플랜 · 동중국해 오션뷰 코스 & 인근 풀빌라/리조트 연계",
+          coord: { x: 156, y: 275 },
+          searchQuery: "PGM 골프리조트 오키나와 숙소 패키지 후기"
+        }
+      };
+
+      var REGION_CONFIG = {
+        naha: {
+          monCourses: ["southern_links", "palm_hills", "okinawa_cc", "bashofu", "ocean_castle"],
+          tueCourses: ["palm_hills", "southern_links", "okinawa_cc", "ryukyu_gc", "ocean_castle"],
+          hotels: ["naha_loisir", "naha_nest_nishi", "naha_harborview"],
+          food: [
+            {
+              name: "마츠모토 (まつもと) 아구샤브샤브",
+              desc: "오키나와 최고 인기 흑돼지 아구 샤브샤브 전문점. 라운드 후 4인 룸 예약 추천.",
+              meta: "마쓰야마 · 사전 예약 필수"
+            },
+            {
+              name: "잭스 스테이크 하우스 (Jack's Steak House)",
+              desc: "1953년 오픈한 나하 노포 스테이크집. 텐더로인 스테이크와 오리온 생맥주 궁합 최고.",
+              meta: "니시마치 · 웨이팅 감안 17:30 방문 권장"
+            },
+            {
+              name: "국제거리 포장마차촌 (야타이무라)",
+              desc: "20여 개 로컬 이자카야가 모인 골목. 고야참푸루, 우미부도, 아와모리 2차 코스로 제격.",
+              meta: "마키시 · 도보 이동 가능"
+            }
+          ],
+          sightseeing: [
+            {
+              name: "국제거리 & 돈키호테 쇼핑",
+              desc: "귀국 전 선물(베니이모 타르트, 시콰서, 일본 위스키/골프 소품) 일괄 구매 최적.",
+              meta: "차량 주차 후 도보 1시간"
+            },
+            {
+              name: "세나가섬 우미카지 테라스",
+              desc: "공항 활주로와 바다가 한눈에 보이는 하얀 테라스 몰. 일요일 입국 직후 커피/간식 코스로 추천.",
+              meta: "공항 차로 12분 · 해질녘 뷰"
+            },
+            {
+              name: "슈리성 공원 & 킨조초 돌담길",
+              desc: "오키나와 류큐 왕국의 역사를 느끼며 가볍게 산책하기 좋은 고지대 전망 산책로.",
+              meta: "나하 시내 · 차로 15분"
+            }
+          ]
+        },
+        chatan: {
+          monCourses: ["pgm_okinawa", "ocean_castle", "okinawa_cc", "ginoza_cc", "southern_links"],
+          tueCourses: ["ocean_castle", "okinawa_cc", "palm_hills", "southern_links", "pgm_okinawa"],
+          hotels: ["chatan_oile", "chatan_lagent", "chatan_rana"],
+          food: [
+            {
+              name: "류큐노우시 차탄점 (琉球の牛)",
+              desc: "프리미엄 오키나와 와규·모토부규 야키니쿠. 4인 골프 후 회식 만족도가 가장 높은 곳 중 하나.",
+              meta: "아메리칸 빌리지 인근 · 예약 권장"
+            },
+            {
+              name: "하마 스시 / 구루메 회전초밥 마켓",
+              desc: "부담 없이 신선한 참치와 지역 생선 스시를 빠르게 즐길 수 있는 미하마 인기 스시집.",
+              meta: "미하마 · 주차 편리"
+            },
+            {
+              name: "선셋 비치 앞 크래프트 비어 & 이자카야",
+              desc: "바닷바람 맞으며 오키나와 지비루(로컬 맥주)와 야키토리로 라운드 복기하기 좋은 테라스.",
+              meta: "디포 아일랜드 해변 산책로"
+            }
+          ],
+          sightseeing: [
+            {
+              name: "아메리칸 빌리지 야간 산책",
+              desc: "이국적인 네온과 해변 보드워크가 어우러진 중부 대표 야간 명소. 저녁 식사 후 산책 코스.",
+              meta: "숙소 도보 5분 내외"
+            },
+            {
+              name: "차탄 선셋 비치",
+              desc: "수평선 너머로 떨어지는 오키나와 선셋 명소. 일요일 체크인 직후 일몰 감상에 최적.",
+              meta: "일몰 30분 전 방문 추천"
+            },
+            {
+              name: "츄라우유 온천 (테루메 빌라)",
+              desc: "천연 온천수가 나오는 리조트 온천 시설(또는 베셀 대욕장)로 근육 피로 회복.",
+              meta: "미하마 비치 옆"
+            }
+          ]
+        },
+        onna: {
+          monCourses: ["pgm_okinawa", "kanehide_kise", "atta_terrace", "ginoza_cc", "enagic_seki"],
+          tueCourses: ["pgm_okinawa", "atta_terrace", "ginoza_cc", "ocean_castle", "kanehide_kise"],
+          hotels: ["onna_kariyushi", "onna_bestwestern"],
+          food: [
+            {
+              name: "류큐노우시 온나손 본점",
+              desc: "온나손 부치에 위치한 와규 야키니쿠 본점. 코스 요리와 단품 모두 퀄리티가 뛰어남.",
+              meta: "온나손 58번 국도 · 예약 필수"
+            },
+            {
+              name: "시마부타야 (島豚家) 아구 찜/샤브",
+              desc: "온나손 대표 오키나와 흑돼지 전문점. 정갈한 다다미 좌석에서 조용한 4인 저녁 식사.",
+              meta: "온나손 · 차량 10분"
+            },
+            {
+              name: "나카무라 소바 (만자모 인근)",
+              desc: "아오사(파래) 소바와 부드러운 족발/삼겹 소바가 유명한 로컬 맛집. 점심/간단한 식사로 추천.",
+              meta: "세라가키 인근 · 현금 준비"
+            }
+          ],
+          sightseeing: [
+            {
+              name: "만자모 (万座毛) 절벽 산책로",
+              desc: "코끼리 바위와 푸른 동중국해가 펼쳐지는 온나손 랜드마크. 정비된 데크길 20분 산책.",
+              meta: "PGM/만자 숙소 10분"
+            },
+            {
+              name: "마에다 곶 (푸른 동굴 전망대)",
+              desc: "투명한 에메랄드 바다와 절벽 경관을 위에서 내려다보는 드라이브 포인트.",
+              meta: "온나손 남단 · 드라이브 15분"
+            },
+            {
+              name: "부세나 해중공원",
+              desc: "해중 전망탑과 유리바닥 보트로 산호초와 열대어를 감상하는 휴양 명소.",
+              meta: "나고 경계 · 차로 15분"
+            }
+          ]
+        },
+        resort: {
+          monCourses: ["kanucha_gc", "pgm_okinawa", "kanehide_kise", "belle_beach", "enagic_seki"],
+          tueCourses: ["pgm_okinawa", "ginoza_cc", "kanehide_kise", "enagic_seki", "kanucha_gc"],
+          hotels: ["resort_kanucha", "resort_pgm"],
+          food: [
+            {
+              name: "야키니쿠 모토부 목장 (나고/모토부)",
+              desc: "직영 목장에서 공급하는 최상급 모토부규 소고기 전문점. 마블링과 육즙이 압도적.",
+              meta: "나고/모토부 · 사전 예약 권장"
+            },
+            {
+              name: "카누차 비치사이드 BBQ & 일식 와라쿠",
+              desc: "리조트 단지 내에서 외부 운전 부담 없이 아와모리 한잔과 즐기는 저녁 회식.",
+              meta: "카누차 리조트 단지 내"
+            },
+            {
+              name: "우후야 (百年古家 大家)",
+              desc: "100년 된 고택과 폭포 정원에서 즐기는 아구 샤브샤브 및 오키나와 정식.",
+              meta: "나고시 · 분위기 최고"
+            }
+          ],
+          sightseeing: [
+            {
+              name: "코우리 대교 & 코우리섬 드라이브",
+              desc: "에메랄드 바다 위를 가로지르는 약 2km 해상 교량. 4인 드라이브 명소 1순위.",
+              meta: "모토부/벨비치 인근"
+            },
+            {
+              name: "비세 후쿠기 가로수길",
+              desc: "오리온 모토부 리조트 바로 옆 수백 년 된 방풍림 산책로. 라운드 후 힐링 산책.",
+              meta: "모토부 · 도보/자전거"
+            },
+            {
+              name: "나고 파인애플 파크 / 오리온 해피파크",
+              desc: "오키나와 대표 맥주 오리온 공장 투어 및 시음(운전자 제외)으로 즐거운 북부 코스.",
+              meta: "나고 시내 · 예약 확인"
+            }
+          ]
+        }
+      };
+
+      var AIRPORT_COORD = { x: 96, y: 374 };
+
+      var state = {
+        heroIndex: 0,
+        exchangeRate: 860,
+        regionId: "naha",
+        selectedRegionCardId: null,
+        selectedVehicleId: "voxy",
+        selectedMonCourseId: "southern_links",
+        selectedTueCourseId: "palm_hills",
+        selectedHotelId: "naha_loisir",
+        prices: {},
+        photos: {},
+        submissions: [],
+        isAdmin: false,
+        editingSubmissionId: null,
+        modal: {
+          open: false,
+          editId: null,
+          regionId: "naha",
+          selectedVehicleId: "voxy",
+          selectedMonCourseId: "southern_links",
+          selectedTueCourseId: "palm_hills",
+          selectedHotelId: "naha_loisir"
+        }
+      };
+
+      function getPriceObj(key) {
+        if (!state.prices[key]) {
+          state.prices[key] = { krw: 0, jpy: 0, source: "jpy", customEdited: false };
+        }
+        return state.prices[key];
+      }
+
+      function getEffectiveCoursePlanInfo(course, dayType) {
+        var isKanuchaStay = state.selectedHotelId === "resort_kanucha";
+        if (course.id === "kanucha_gc" && isKanuchaStay) {
+          return {
+            jpyPerPerson: 20556,
+            planNote: "1인 총액 20,556엔 · 【숙박자 한정】 평일 셀프/스루 (카누차 숙박 자동 적용)"
+          };
+        }
+        return {
+          jpyPerPerson: dayType === "mon" ? course.monJpyPerPerson : course.tueJpyPerPerson,
+          planNote: dayType === "mon" ? course.monPlanNote : course.tuePlanNote
+        };
+      }
+
+      function syncKanuchaCoursePrice() {
+        var course = COURSES.kanucha_gc;
+        if (!course) return;
+        ["mon", "tue"].forEach(function (dayType) {
+          var key = (dayType === "mon" ? "monCourse:" : "tueCourse:") + course.id;
+          var p = getPriceObj(key);
+          if (p.customEdited) return;
+          var info = getEffectiveCoursePlanInfo(course, dayType);
+          var perPersonJpy = info.jpyPerPerson;
+          p.jpy = perPersonJpy;
+          p.krw = Math.round((perPersonJpy / 100) * state.exchangeRate);
+          p.source = "jpy";
+        });
+      }
+
+      function initDefaultCoursePrices() {
+        Object.keys(COURSES).forEach(function (cid) {
+          var c = COURSES[cid];
+          var monInfo = getEffectiveCoursePlanInfo(c, "mon");
+          var monJpy = monInfo.jpyPerPerson;
+          state.prices["monCourse:" + cid] = {
+            jpy: monJpy,
+            krw: Math.round((monJpy / 100) * state.exchangeRate),
+            source: "jpy",
+            customEdited: false
+          };
+
+          var tueInfo = getEffectiveCoursePlanInfo(c, "tue");
+          var tueJpy = tueInfo.jpyPerPerson;
+          state.prices["tueCourse:" + cid] = {
+            jpy: tueJpy,
+            krw: Math.round((tueJpy / 100) * state.exchangeRate),
+            source: "jpy",
+            customEdited: false
+          };
+        });
+      }
+
+      function formatNum(n) {
+        var rounded = Math.round(Number(n) || 0);
+        return rounded.toLocaleString("ko-KR");
+      }
+
+      function parseNumStr(str) {
+        var digits = String(str || "").replace(/[^\d]/g, "");
+        return digits ? parseInt(digits, 10) : 0;
+      }
+
+      function formatInputWithCommasPreserveCursor(inputEl, numericVal) {
+        var raw = inputEl.value;
+        var selStart = inputEl.selectionStart || 0;
+        var digitsBefore = raw.slice(0, selStart).replace(/[^\d]/g, "").length;
+        var formatted = formatNum(numericVal);
+        inputEl.value = formatted;
+        if (document.activeElement === inputEl && typeof inputEl.setSelectionRange === "function") {
+          var nextPos = 0;
+          var seenDigits = 0;
+          if (digitsBefore === 0 && numericVal === 0) {
+            nextPos = formatted.length;
+          } else {
+            while (nextPos < formatted.length && seenDigits < digitsBefore) {
+              if (/\d/.test(formatted.charAt(nextPos))) {
+                seenDigits++;
+              }
+              nextPos++;
+            }
+          }
+          inputEl.setSelectionRange(nextPos, nextPos);
+        }
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function googleSearchUrl(query) {
+        return "https://www.google.com/search?q=" + encodeURIComponent(query);
+      }
+
+      function googleImageSearchUrl(name, fallbackType) {
+        var suffix = " 외관 전경";
+        if (fallbackType === "vehicle") {
+          suffix = " 외관 실사";
+        } else if (fallbackType === "course") {
+          suffix = " 오키나와 골프 코스 전경";
+        } else if (fallbackType === "hotel") {
+          suffix = " 오키나와 호텔 외관 전경";
+        }
+        return "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(name + suffix);
+      }
+
+      function googleMapsPlaceUrl(query) {
+        return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query);
+      }
+
+      /* IndexedDB Photo Persistence */
+      var photoDb = (function () {
+        var DB_NAME = "okinawa_golf_tour_db";
+        var STORE_NAME = "photos";
+
+        function openDb() {
+          return new Promise(function (resolve, reject) {
+            if (!window.indexedDB) {
+              reject(new Error("No IndexedDB"));
+              return;
+            }
+            try {
+              var req = window.indexedDB.open(DB_NAME, 1);
+              req.onupgradeneeded = function (e) {
+                var db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                  db.createObjectStore(STORE_NAME);
+                }
+              };
+              req.onsuccess = function (e) { resolve(e.target.result); };
+              req.onerror = function (e) { reject(e.target.error); };
+            } catch (err) {
+              reject(err);
+            }
+          });
+        }
+
+        function save(key, dataUrl) {
+          return openDb().then(function (db) {
+            return new Promise(function (resolve) {
+              var tx = db.transaction(STORE_NAME, "readwrite");
+              tx.objectStore(STORE_NAME).put(dataUrl, key);
+              tx.oncomplete = function () { resolve(); };
+              tx.onerror = function () { resolve(); };
+            });
+          }).catch(function () {});
+        }
+
+        function remove(key) {
+          return openDb().then(function (db) {
+            return new Promise(function (resolve) {
+              var tx = db.transaction(STORE_NAME, "readwrite");
+              tx.objectStore(STORE_NAME).delete(key);
+              tx.oncomplete = function () { resolve(); };
+              tx.onerror = function () { resolve(); };
+            });
+          }).catch(function () {});
+        }
+
+        function loadAll() {
+          return openDb().then(function (db) {
+            return new Promise(function (resolve) {
+              var result = {};
+              var tx = db.transaction(STORE_NAME, "readonly");
+              var store = tx.objectStore(STORE_NAME);
+              var cursorReq = store.openCursor();
+              cursorReq.onsuccess = function (e) {
+                var cursor = e.target.result;
+                if (cursor) {
+                  result[cursor.key] = cursor.value;
+                  cursor.continue();
+                } else {
+                  resolve(result);
+                }
+              };
+              cursorReq.onerror = function () { resolve(result); };
+            });
+          }).catch(function () { return {}; });
+        }
+
+        return { save: save, remove: remove, loadAll: loadAll };
+      })();
+
+      function refreshPhotoSections(photoKey) {
+        if (photoKey.indexOf("vehicle:") === 0) {
+          renderVehicles();
+        } else if (photoKey.indexOf("course:") === 0) {
+          renderMonCourses();
+          renderTueCourses();
+        } else if (photoKey.indexOf("hotel:") === 0) {
+          renderHotels();
+        }
+      }
+
+      function compressImageToDataUrl(img, fallbackDataUrl) {
+        try {
+          var maxW = 900;
+          var ratio = img.width > maxW ? maxW / img.width : 1;
+          var canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(img.width * ratio));
+          canvas.height = Math.max(1, Math.round(img.height * ratio));
+          var ctx = canvas.getContext("2d");
+          if (!ctx) return fallbackDataUrl;
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          var qualities = [0.80, 0.66, 0.52, 0.40];
+          for (var i = 0; i < qualities.length; i++) {
+            var candidate = canvas.toDataURL("image/jpeg", qualities[i]);
+            if (candidate.length <= 380000 || i === qualities.length - 1) {
+              return candidate;
+            }
+          }
+        } catch (_err) {
+          return fallbackDataUrl;
+        }
+        return fallbackDataUrl;
+      }
+
+      function processAndStorePhotoFile(file, photoKey) {
+        if (!file || !photoKey) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          var rawDataUrl = e.target.result;
+          var img = new Image();
+          img.onload = function () {
+            var finalDataUrl = compressImageToDataUrl(img, rawDataUrl);
+            state.photos[photoKey] = finalDataUrl;
+            photoDb.save(photoKey, finalDataUrl);
+            refreshPhotoSections(photoKey);
+            var bridge = window.OkinawaFirebase;
+            if (bridge && bridge.getAuthInfo().isAdmin) {
+              bridge.saveSinglePhoto(photoKey, finalDataUrl).then(function (ok) {
+                showToast(ok ? "실사 사진이 등록되어 Firebase DB에 저장되었습니다." : "실사 사진 저장에 실패했습니다.");
+              }).catch(function () {
+                showToast("실사 사진 DB 저장 중 오류가 발생했습니다.");
+              });
+            } else {
+              showToast("실사 사진이 등록되었습니다. (공유 반영은 관리자 로그인 후 DB 저장)");
+            }
+          };
+          img.onerror = function () {
+            state.photos[photoKey] = rawDataUrl;
+            photoDb.save(photoKey, rawDataUrl);
+            refreshPhotoSections(photoKey);
+            showToast("실사 사진이 등록되었습니다.");
+          };
+          img.src = rawDataUrl;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      /* Resort Hero Slideshow */
+      function initHeroSlides() {
+        var slidesEl = document.getElementById("hero-slides");
+        var dotsEl = document.getElementById("hero-dots");
+
+        slidesEl.innerHTML = HERO_SLIDES.map(function (s, idx) {
+          var activeCls = idx === state.heroIndex ? " is-active" : "";
+          return '<div class="hero-slide' + activeCls + '" data-hero-slide="' + idx + '">' + s.svg + "</div>";
+        }).join("");
+
+        dotsEl.innerHTML = HERO_SLIDES.map(function (_s, idx) {
+          var activeCls = idx === state.heroIndex ? " is-active" : "";
+          return '<button type="button" class="hero-dot' + activeCls + '" data-action="hero-dot" data-hero-index="' + idx + '" aria-label="슬라이드 ' + (idx + 1) + '"></button>';
+        }).join("");
+
+        updateHeroCopy(true);
+      }
+
+      function updateHeroCopy(immediate) {
+        var current = HERO_SLIDES[state.heroIndex];
+        var textGroup = document.getElementById("hero-text-group");
+        var headlineEl = document.getElementById("hero-headline");
+        var sublineEl = document.getElementById("hero-subline");
+
+        if (immediate) {
+          headlineEl.textContent = current.headline;
+          sublineEl.textContent = current.subline;
+          return;
+        }
+
+        textGroup.style.opacity = "0";
+        textGroup.style.transform = "translateY(8px)";
+        window.clearTimeout(textGroup._fadeTimer);
+        textGroup._fadeTimer = window.setTimeout(function () {
+          headlineEl.textContent = current.headline;
+          sublineEl.textContent = current.subline;
+          textGroup.style.opacity = "1";
+          textGroup.style.transform = "translateY(0)";
+        }, 240);
+      }
+
+      function setHeroSlide(nextIdx) {
+        var len = HERO_SLIDES.length;
+        state.heroIndex = ((nextIdx % len) + len) % len;
+
+        var slides = document.querySelectorAll("[data-hero-slide]");
+        slides.forEach(function (el, idx) {
+          el.classList.toggle("is-active", idx === state.heroIndex);
+        });
+
+        var dots = document.querySelectorAll("[data-action='hero-dot']");
+        dots.forEach(function (el, idx) {
+          el.classList.toggle("is-active", idx === state.heroIndex);
+        });
+
+        updateHeroCopy(false);
+      }
+
+      var heroTimer = null;
+      function startHeroAutoplay() {
+        stopHeroAutoplay();
+        heroTimer = window.setInterval(function () {
+          setHeroSlide(state.heroIndex + 1);
+        }, 6200);
+      }
+
+      function stopHeroAutoplay() {
+        if (heroTimer) {
+          window.clearInterval(heroTimer);
+          heroTimer = null;
+        }
+      }
+
+      function getResortSvgArt(type, idx) {
+        var shift = (idx || 0) % 3;
+        if (type === "vehicle") {
+          var skyColors = [
+            ["#1c4134", "#59806f"],
+            ["#213c47", "#678e99"],
+            ["#2c3830", "#7c897d"]
+          ][shift];
+          return (
+            '<svg class="card-svg-art" viewBox="0 0 320 170" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+              '<defs><linearGradient id="vbg' + shift + '" x1="0" y1="0" x2="1" y2="1">' +
+                '<stop offset="0%" stop-color="' + skyColors[0] + '"/>' +
+                '<stop offset="100%" stop-color="' + skyColors[1] + '"/>' +
+              "</linearGradient></defs>" +
+              '<rect width="320" height="170" fill="url(#vbg' + shift + ')"/>' +
+              '<path d="M0 124 Q160 112 320 124 L320 170 L0 170 Z" fill="rgba(12,24,19,0.45)"/>' +
+              '<path d="M62 108 L80 68 C84 60 92 55 102 55 H206 C220 55 232 62 240 74 L256 96 V116 C256 120 253 123 248 123 H232 M88 123 H70 C65 123 62 120 62 116 V108 M112 123 H208" stroke="#f6f4ef" stroke-width="3" fill="rgba(255,255,255,0.12)" stroke-linecap="round" stroke-linejoin="round"/>' +
+              '<circle cx="100" cy="123" r="12" fill="#16241d" stroke="#e5d2ab" stroke-width="2.5"/>' +
+              '<circle cx="220" cy="123" r="12" fill="#16241d" stroke="#e5d2ab" stroke-width="2.5"/>' +
+              '<path d="M92 84 H214" stroke="rgba(246,244,239,0.65)" stroke-width="2" stroke-linecap="round"/>' +
+            "</svg>"
+          );
+        }
+        if (type === "course") {
+          var cPalette = [
+            ["#154354", "#6ba5a8", "#235e43"],
+            ["#193e33", "#7fa88e", "#2d6f50"],
+            ["#214257", "#8eb0b8", "#1f5942"]
+          ][shift];
+          return (
+            '<svg class="card-svg-art" viewBox="0 0 320 170" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+              '<defs><linearGradient id="cbg' + shift + '" x1="0" y1="0" x2="0" y2="1">' +
+                '<stop offset="0%" stop-color="' + cPalette[0] + '"/>' +
+                '<stop offset="100%" stop-color="' + cPalette[1] + '"/>' +
+              "</linearGradient></defs>" +
+              '<rect width="320" height="170" fill="url(#cbg' + shift + ')"/>' +
+              '<circle cx="248" cy="46" r="18" fill="#f5deb0" opacity="0.48"/>' +
+              '<path d="M0 100 L320 100 L320 170 L0 170 Z" fill="rgba(16,74,88,0.48)"/>' +
+              '<path d="M0 122 C88 94 185 106 320 128 L320 170 L0 170 Z" fill="' + cPalette[2] + '"/>' +
+              '<path d="M128 136 C165 124 218 124 252 138 C215 150 162 150 128 136 Z" fill="#468b63"/>' +
+              '<line x1="194" y1="134" x2="194" y2="74" stroke="#f6f4ef" stroke-width="2.2"/>' +
+              '<path d="M194 74 L222 83 L194 92 Z" fill="#e5c88a"/>' +
+            "</svg>"
+          );
+        }
+        var hPalette = [
+          ["#1c3238", "#b98a5f"],
+          ["#1a382c", "#749e8a"],
+          ["#233747", "#9fb8be"]
+        ][shift];
+        return (
+          '<svg class="card-svg-art" viewBox="0 0 320 170" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+            '<defs><linearGradient id="hbg' + shift + '" x1="0" y1="0" x2="1" y2="1">' +
+              '<stop offset="0%" stop-color="' + hPalette[0] + '"/>' +
+              '<stop offset="100%" stop-color="' + hPalette[1] + '"/>' +
+            "</linearGradient></defs>" +
+            '<rect width="320" height="170" fill="url(#hbg' + shift + ')"/>' +
+            '<path d="M0 126 L320 126 L320 170 L0 170 Z" fill="#174450" opacity="0.65"/>' +
+            '<rect x="74" y="66" width="172" height="60" rx="3" fill="rgba(22,36,29,0.75)" stroke="rgba(229,210,171,0.45)"/>' +
+            '<rect x="92" y="80" width="24" height="18" fill="#f3d692" opacity="0.72"/>' +
+            '<rect x="128" y="80" width="24" height="18" fill="#f3d692" opacity="0.58"/>' +
+            '<rect x="164" y="80" width="24" height="18" fill="#f3d692" opacity="0.75"/>' +
+            '<rect x="200" y="80" width="24" height="18" fill="#f3d692" opacity="0.62"/>' +
+            '<path d="M46 130 Q54 92 70 72 M56 96 Q74 88 86 98 M56 96 Q40 86 28 96" stroke="#101e17" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+          "</svg>"
+        );
+      }
+
+      function renderCard(opts) {
+        var priceKey = opts.priceKey;
+        var p = getPriceObj(priceKey);
+        var photoSrc = state.photos[opts.photoKey];
+        var isSelected = opts.selected;
+        var cardClass = "item-card" + (isSelected ? " is-selected" : "");
+        var mediaHtml = photoSrc
+          ? '<img src="' + escapeHtml(photoSrc) + '" alt="' + escapeHtml(opts.name) + '" />'
+          : '<div class="card-svg-fallback">' +
+              getResortSvgArt(opts.fallbackType, opts.index) +
+              '<span class="card-svg-caption" style="bottom:44px">클릭 또는 드래그해 실제 사진 등록</span>' +
+            "</div>";
+
+        var removeBtnHtml = photoSrc
+          ? '<button type="button" class="photo-remove-btn" data-action="remove-photo" data-photo-key="' + escapeHtml(opts.photoKey) + '" title="등록 사진 삭제">삭제</button>'
+          : "";
+
+        var firstStarBadge = opts.index === 0 ? '<span class="badge-star" title="첫 번째 선택지">★</span>' : "";
+        var selectedBadge = isSelected ? '<span class="badge-selected-flag">선택됨</span>' : "";
+        var planNoteHtml = opts.planNote
+          ? '<div class="card-plan-note">' + escapeHtml(opts.planNote) + "</div>"
+          : "";
+        var flightNoteHtml = opts.flightNote
+          ? '<div class="card-flight-note">' + escapeHtml(opts.flightNote) + "</div>"
+          : "";
+
+        var isPerPerson = opts.group === "monCourse" || opts.group === "tueCourse";
+        var krwLabel = isPerPerson ? "원화 총액 (1인)" : "원화 총합 (4인)";
+        var jpyLabel = isPerPerson ? "엔화 총액 (1인)" : "엔화 총합 (4인)";
+        var teamHintHtml = isPerPerson
+          ? '<div class="price-team-hint tabular" data-team-hint="' + escapeHtml(priceKey) + '">' +
+              '<span>4인 합계 (×4)</span>' +
+              '<strong>₩' + formatNum(p.krw * 4) + ' / ¥' + formatNum(p.jpy * 4) + '</strong>' +
+            '</div>'
+          : "";
+
+        return (
+          '<article class="' + cardClass + '" style="--card-idx:' + (opts.index || 0) + '" data-card-group="' + opts.group + '" data-item-id="' + opts.id + '">' +
+            '<div class="card-media" data-action="trigger-upload" data-photo-key="' + escapeHtml(opts.photoKey) + '" style="cursor:pointer" title="클릭하거나 이미지 파일을 끌어다 놓아 실사 등록">' +
+              mediaHtml +
+              firstStarBadge +
+              selectedBadge +
+              '<div class="media-action-bar">' +
+                '<a class="image-search-link" data-stop-upload="1" href="' + googleImageSearchUrl(opts.name, opts.fallbackType) + '" target="_blank" rel="noopener noreferrer">🔍 외관 찾기</a>' +
+                '<div class="media-action-right">' +
+                  removeBtnHtml +
+                  '<button type="button" class="upload-trigger" data-action="trigger-upload" data-photo-key="' + escapeHtml(opts.photoKey) + '">' + (photoSrc ? "📷 변경" : "📷 실사 등록") + "</button>" +
+                "</div>" +
+              "</div>" +
+              '<input type="file" accept="image/*" class="file-input-hidden" data-action="photo-upload" data-photo-key="' + escapeHtml(opts.photoKey) + '" />' +
+            "</div>" +
+            '<div class="card-body">' +
+              '<div class="card-top">' +
+                '<h3 class="card-name">' + escapeHtml(opts.name) + "</h3>" +
+                '<span class="card-rating">★ ' + escapeHtml(opts.rating) + "</span>" +
+              "</div>" +
+              '<div class="card-meta">' + escapeHtml(opts.specs) + "</div>" +
+              planNoteHtml +
+              flightNoteHtml +
+              '<div class="price-pair">' +
+                '<div class="price-field">' +
+                  "<label>" + krwLabel + "</label>" +
+                  '<div class="price-input-wrap">' +
+                    '<span class="currency-symbol">₩</span>' +
+                    '<input type="text" inputmode="numeric" class="price-input tabular" value="' + formatNum(p.krw) + '" data-action="price-input" data-price-key="' + escapeHtml(priceKey) + '" data-currency="krw" />' +
+                  "</div>" +
+                "</div>" +
+                '<div class="price-field">' +
+                  "<label>" + jpyLabel + "</label>" +
+                  '<div class="price-input-wrap">' +
+                    '<span class="currency-symbol">¥</span>' +
+                    '<input type="text" inputmode="numeric" class="price-input tabular" value="' + formatNum(p.jpy) + '" data-action="price-input" data-price-key="' + escapeHtml(priceKey) + '" data-currency="jpy" />' +
+                  "</div>" +
+                "</div>" +
+              "</div>" +
+              teamHintHtml +
+              '<div class="card-footer-actions">' +
+                '<button type="button" class="btn-select" data-action="select-item" data-group="' + opts.group + '" data-item-id="' + opts.id + '">' +
+                  (isSelected ? "선택 완료" : opts.selectLabel) +
+                "</button>" +
+                '<a class="btn-link" href="' + googleSearchUrl(opts.searchQuery) + '" target="_blank" rel="noopener noreferrer">구글 리뷰</a>' +
+              "</div>" +
+            "</div>" +
+          "</article>"
+        );
+      }
+
+      function renderVehicles() {
+        var el = document.getElementById("vehicle-track");
+        el.innerHTML = VEHICLES.map(function (v, idx) {
+          return renderCard({
+            index: idx,
+            group: "vehicle",
+            id: v.id,
+            name: v.name,
+            rating: v.rating,
+            specs: v.specs,
+            searchQuery: v.searchQuery,
+            fallbackType: "vehicle",
+            priceKey: "vehicle:" + v.id,
+            photoKey: "vehicle:" + v.id,
+            selected: state.selectedVehicleId === v.id,
+            selectLabel: "이 차량 선택"
+          });
+        }).join("");
+      }
+
+      function renderRegionTabs() {
+        var el = document.getElementById("region-tabs");
+        if (!el.children.length) {
+          el.innerHTML = REGIONS.map(function (r, idx) {
+            var frontStar = idx === 0 ? '<span class="region-front-star" aria-hidden="true">★</span>' : "";
+            var backStar = idx === 0 ? '<span class="region-back-star" aria-hidden="true">★</span>' : "";
+            var prosHtml = r.pros.map(function (line) {
+              return "<li>" + escapeHtml(line) + "</li>";
+            }).join("");
+            return (
+              '<button type="button" class="region-tab" data-action="select-region" data-region-id="' + r.id + '">' +
+                '<div class="region-flip-inner">' +
+                  '<div class="region-face region-face-front">' +
+                    frontStar +
+                    '<span class="region-front-name serif">' + escapeHtml(r.title) + "</span>" +
+                  "</div>" +
+                  '<div class="region-face region-face-back">' +
+                    '<div class="region-back-head">' +
+                      '<span class="region-back-title serif">' + backStar + escapeHtml(r.title) + "</span>" +
+                      '<span class="region-back-badge">선택됨</span>' +
+                    "</div>" +
+                    '<ul class="region-pros">' + prosHtml + "</ul>" +
+                  "</div>" +
+                "</div>" +
+              "</button>"
+            );
+          }).join("");
+        }
+
+        var cards = el.querySelectorAll(".region-tab");
+        cards.forEach(function (btn) {
+          var rid = btn.getAttribute("data-region-id");
+          btn.classList.toggle("is-flipped", state.selectedRegionCardId === rid);
+        });
+      }
+
+      function renderMonCourses() {
+        var cfg = REGION_CONFIG[state.regionId];
+        var regionObj = REGIONS.find(function (r) { return r.id === state.regionId; });
+        document.getElementById("mon-region-desc").textContent =
+          regionObj.title + " 숙소에서 출발하기 좋은 월요일 1R(18홀) 코스입니다. 그린피는 1인 총액(세금포함) 기준으로 자동 입력됩니다.";
+
+        var el = document.getElementById("mon-course-track");
+        el.innerHTML = cfg.monCourses.map(function (cid, idx) {
+          var c = COURSES[cid];
+          var planInfo = getEffectiveCoursePlanInfo(c, "mon");
+          return renderCard({
+            index: idx,
+            group: "monCourse",
+            id: c.id,
+            name: c.name,
+            rating: c.rating,
+            specs: c.specs,
+            planNote: planInfo.planNote,
+            searchQuery: c.searchQuery,
+            fallbackType: "course",
+            priceKey: "monCourse:" + c.id,
+            photoKey: "course:" + c.id,
+            selected: state.selectedMonCourseId === c.id,
+            selectLabel: "월 1R 선택"
+          });
+        }).join("");
+      }
+
+      function renderTueCourses() {
+        var cfg = REGION_CONFIG[state.regionId];
+        var regionObj = REGIONS.find(function (r) { return r.id === state.regionId; });
+        document.getElementById("tue-region-desc").textContent =
+          regionObj.title + " 체크아웃 후 화요일 2R 및 나하공항 귀국 동선에 맞춘 코스입니다. 그린피는 1인 총액(세금포함) 기준입니다.";
+
+        var el = document.getElementById("tue-course-track");
+        el.innerHTML = cfg.tueCourses.map(function (cid, idx) {
+          var c = COURSES[cid];
+          var planInfo = getEffectiveCoursePlanInfo(c, "tue");
+          return renderCard({
+            index: idx,
+            group: "tueCourse",
+            id: c.id,
+            name: c.name,
+            rating: c.rating,
+            specs: c.specs,
+            planNote: planInfo.planNote,
+            flightNote: c.flightNote,
+            searchQuery: c.searchQuery,
+            fallbackType: "course",
+            priceKey: "tueCourse:" + c.id,
+            photoKey: "course:" + c.id,
+            selected: state.selectedTueCourseId === c.id,
+            selectLabel: "화 2R 선택"
+          });
+        }).join("");
+      }
+
+      function renderHotels() {
+        var cfg = REGION_CONFIG[state.regionId];
+        var regionObj = REGIONS.find(function (r) { return r.id === state.regionId; });
+        document.getElementById("hotel-region-desc").textContent =
+          regionObj.title + " 기준 일·월 2박 숙소 후보입니다. 금액은 4인 기준 총합(2객실 등)으로 입력하세요.";
+
+        var el = document.getElementById("hotel-track");
+        el.innerHTML = cfg.hotels.map(function (hid, idx) {
+          var h = HOTELS[hid];
+          return renderCard({
+            index: idx,
+            group: "hotel",
+            id: h.id,
+            name: h.name,
+            rating: h.rating,
+            specs: h.specs,
+            searchQuery: h.searchQuery,
+            fallbackType: "hotel",
+            priceKey: "hotel:" + h.id,
+            photoKey: "hotel:" + h.id,
+            selected: state.selectedHotelId === h.id,
+            selectLabel: "숙소 선택"
+          });
+        }).join("");
+      }
+
+      function renderLocalGuide() {
+        var cfg = REGION_CONFIG[state.regionId];
+        var regionObj = REGIONS.find(function (r) { return r.id === state.regionId; });
+        document.getElementById("local-region-desc").textContent =
+          regionObj.title + " 숙소 주변에서 라운드 후 즐기기 좋은 저녁 먹거리 및 관광/산책 스팟입니다.";
+
+        function buildList(items) {
+          return items.map(function (item) {
+            return (
+              '<li class="local-item">' +
+                "<div>" +
+                  '<div class="local-item-name">' + escapeHtml(item.name) + "</div>" +
+                  '<div class="local-item-desc">' + escapeHtml(item.desc) + "</div>" +
+                  '<div class="local-item-meta">' + escapeHtml(item.meta) + "</div>" +
+                "</div>" +
+                '<a class="btn-link" href="' + googleMapsPlaceUrl("오키나와 " + item.name) + '" target="_blank" rel="noopener noreferrer">지도</a>' +
+              "</li>"
+            );
+          }).join("");
+        }
+
+        document.getElementById("local-grid").innerHTML =
+          '<div class="local-col">' +
+            '<h3 class="local-col-title">🍽️ ' + escapeHtml(regionObj.name) + " 추천 저녁 먹거리</h3>" +
+            '<ul class="local-list">' + buildList(cfg.food) + "</ul>" +
+          "</div>" +
+          '<div class="local-col">' +
+            '<h3 class="local-col-title">🌿 ' + escapeHtml(regionObj.name) + " 주변 관광 및 산책</h3>" +
+            '<ul class="local-list">' + buildList(cfg.sightseeing) + "</ul>" +
+          "</div>";
+      }
+
+      function buildOkinawaMapSvg(hotel, monCourse, tueCourse) {
+        var ap = AIRPORT_COORD;
+        var hc = hotel.coord;
+        var mc = monCourse.coord;
+        var tc = tueCourse.coord;
+
+        return (
+          '<svg class="okinawa-svg" viewBox="0 0 320 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="오키나와 본섬 골프 투어 동선 지도">' +
+            '<defs>' +
+              '<marker id="arrow-sun" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">' +
+                '<path d="M 0 1 L 10 5 L 0 9 z" fill="#123b2d"/>' +
+              "</marker>" +
+              '<marker id="arrow-mon" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">' +
+                '<path d="M 0 1 L 10 5 L 0 9 z" fill="#155c6e"/>' +
+              "</marker>" +
+              '<marker id="arrow-tue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">' +
+                '<path d="M 0 1 L 10 5 L 0 9 z" fill="#a93b30"/>' +
+              "</marker>" +
+            "</defs>" +
+            '<path d="M0 110H320M0 220H320M0 330H320M110 0V440M220 0V440" stroke="rgba(21,92,110,0.08)" stroke-width="1"/>' +
+            '<path d="M258 34 L274 44 L272 72 L256 108 L244 138 L248 166 L242 198 L228 214 L208 228 L194 246 L186 270 L184 294 L196 312 L182 326 L168 338 L158 360 L150 388 L128 416 L96 410 L82 390 L90 364 L106 344 L118 320 L124 296 L142 272 L156 244 L172 214 L152 196 L132 178 L138 156 L164 148 L184 164 L198 148 L216 112 L232 70 Z" fill="#dce6d6" stroke="#96b08f" stroke-width="2"/>' +
+            '<circle cx="174" cy="138" r="6" fill="#dce6d6" stroke="#96b08f" stroke-width="1.5"/>' +
+            '<line class="route-line-animated" x1="' + ap.x + '" y1="' + ap.y + '" x2="' + hc.x + '" y2="' + hc.y + '" stroke="#123b2d" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#arrow-sun)"/>' +
+            '<line x1="' + hc.x + '" y1="' + hc.y + '" x2="' + mc.x + '" y2="' + mc.y + '" stroke="#155c6e" stroke-width="2.5" marker-end="url(#arrow-mon)"/>' +
+            '<line class="route-line-animated" x1="' + hc.x + '" y1="' + hc.y + '" x2="' + tc.x + '" y2="' + tc.y + '" stroke="#a93b30" stroke-width="2.2" stroke-dasharray="4 4" marker-end="url(#arrow-tue)"/>' +
+            '<line class="route-line-animated" x1="' + tc.x + '" y1="' + tc.y + '" x2="' + ap.x + '" y2="' + ap.y + '" stroke="#a93b30" stroke-width="2.2" stroke-dasharray="4 4" marker-end="url(#arrow-tue)"/>' +
+            '<g transform="translate(' + ap.x + ',' + ap.y + ')">' +
+              '<circle r="7" fill="#16241d" stroke="#ffffff" stroke-width="2"/>' +
+              '<text x="-11" y="4" font-size="11" font-weight="800" fill="#16241d" text-anchor="end" style="paint-order:stroke;stroke:#ffffff;stroke-width:3px;">나하공항</text>' +
+            "</g>" +
+            '<g transform="translate(' + hc.x + ',' + hc.y + ')">' +
+              '<circle r="7" fill="#123b2d" stroke="#ffffff" stroke-width="2"/>' +
+              '<text x="11" y="-8" font-size="11" font-weight="800" fill="#123b2d" text-anchor="start" style="paint-order:stroke;stroke:#ffffff;stroke-width:3px;">숙소</text>' +
+            "</g>" +
+            '<g transform="translate(' + mc.x + ',' + mc.y + ')">' +
+              '<circle r="7" fill="#155c6e" stroke="#ffffff" stroke-width="2"/>' +
+              '<text x="11" y="4" font-size="11" font-weight="800" fill="#155c6e" text-anchor="start" style="paint-order:stroke;stroke:#ffffff;stroke-width:3px;">월 1R</text>' +
+            "</g>" +
+            '<g transform="translate(' + tc.x + ',' + tc.y + ')">' +
+              '<circle r="7" fill="#a93b30" stroke="#ffffff" stroke-width="2"/>' +
+              '<text x="11" y="16" font-size="11" font-weight="800" fill="#a93b30" text-anchor="start" style="paint-order:stroke;stroke:#ffffff;stroke-width:3px;">화 2R</text>' +
+            "</g>" +
+          "</svg>"
+        );
+      }
+
+      function renderRouteMap() {
+        var hotel = HOTELS[state.selectedHotelId];
+        var monCourse = COURSES[state.selectedMonCourseId];
+        var tueCourse = COURSES[state.selectedTueCourseId];
+
+        var directionsUrl =
+          "https://www.google.com/maps/dir/" +
+          encodeURIComponent("Naha Airport Okinawa") + "/" +
+          encodeURIComponent(hotel.name + " Okinawa") + "/" +
+          encodeURIComponent(monCourse.name + " Okinawa") + "/" +
+          encodeURIComponent(tueCourse.name + " Okinawa") + "/" +
+          encodeURIComponent("Naha Airport Okinawa");
+
+        document.getElementById("route-layout").innerHTML =
+          '<div class="map-card">' +
+            buildOkinawaMapSvg(hotel, monCourse, tueCourse) +
+            '<div class="map-legend">' +
+              '<span><i class="legend-dot" style="background:#16241d"></i>나하공항</span>' +
+              '<span><i class="legend-dot" style="background:#123b2d"></i>2박 숙소</span>' +
+              '<span><i class="legend-dot" style="background:#155c6e"></i>월 1R</span>' +
+              '<span><i class="legend-dot" style="background:#a93b30"></i>화 2R → 귀국</span>' +
+            "</div>" +
+          "</div>" +
+          '<div class="route-details">' +
+            '<div class="point-chips">' +
+              '<div class="point-chip">' +
+                '<div class="point-chip-head">' +
+                  '<span class="point-role">입국 · 귀국 거점</span>' +
+                  '<a class="btn-link" style="height:26px;font-size:11px;padding:0 8px" href="' + googleMapsPlaceUrl("나하공항 Okinawa") + '" target="_blank" rel="noopener noreferrer">구글맵</a>' +
+                "</div>" +
+                '<div class="point-name">나하공항 (OKA)</div>' +
+                '<div class="point-note">일요일 입국 렌터카 픽업 / 화요일 반납 후 귀국</div>' +
+              "</div>" +
+              '<div class="point-chip">' +
+                '<div class="point-chip-head">' +
+                  '<span class="point-role">일·월 2박 숙소</span>' +
+                  '<a class="btn-link" style="height:26px;font-size:11px;padding:0 8px" href="' + googleMapsPlaceUrl(hotel.name + " Okinawa") + '" target="_blank" rel="noopener noreferrer">구글맵</a>' +
+                "</div>" +
+                '<div class="point-name">' + escapeHtml(hotel.name) + "</div>" +
+                '<div class="point-note">' + escapeHtml(REGIONS.find(function (r) { return r.id === state.regionId; }).title) + " 베이스캠프</div>" +
+              "</div>" +
+              '<div class="point-chip">' +
+                '<div class="point-chip-head">' +
+                  '<span class="point-role">월요일 1R</span>' +
+                  '<a class="btn-link" style="height:26px;font-size:11px;padding:0 8px" href="' + googleMapsPlaceUrl(monCourse.name + " Okinawa") + '" target="_blank" rel="noopener noreferrer">구글맵</a>' +
+                "</div>" +
+                '<div class="point-name">' + escapeHtml(monCourse.name) + "</div>" +
+                '<div class="point-note">숙소 왕복 라운드 및 저녁 회식</div>' +
+              "</div>" +
+              '<div class="point-chip">' +
+                '<div class="point-chip-head">' +
+                  '<span class="point-role">화요일 2R · 귀국</span>' +
+                  '<a class="btn-link" style="height:26px;font-size:11px;padding:0 8px" href="' + googleMapsPlaceUrl(tueCourse.name + " Okinawa") + '" target="_blank" rel="noopener noreferrer">구글맵</a>' +
+                "</div>" +
+                '<div class="point-name">' + escapeHtml(tueCourse.name) + "</div>" +
+                '<div class="point-note">체크아웃 후 라운드 → 주유·반납 → 나하공항</div>' +
+              "</div>" +
+            "</div>" +
+            '<div class="timeline-box">' +
+              '<h3 class="timeline-title">3일 핵심 이동 타임라인 (4인 투어)</h3>' +
+              '<div class="timeline-row"><span class="timeline-day">일요일 (입국)</span><span>나하공항 도착 → 차량 인수(' + escapeHtml(VEHICLES.find(function (v) { return v.id === state.selectedVehicleId; }).name) + ') → ' + escapeHtml(hotel.name) + ' 체크인 → 저녁 식사</span></div>' +
+              '<div class="timeline-row"><span class="timeline-day">월요일 (1R)</span><span>숙소 출발 → ' + escapeHtml(monCourse.name) + ' 18홀 라운드 → 숙소 복귀 및 주변 관광/먹거리</span></div>' +
+              '<div class="timeline-row"><span class="timeline-day">화요일 (2R)</span><span>숙소 체크아웃(짐 상차) → ' + escapeHtml(tueCourse.name) + ' 오전 라운드 → 렌터카 주유 및 반납 → 나하공항 출국</span></div>' +
+            "</div>" +
+            '<div class="route-actions">' +
+              '<a class="btn btn-primary" href="' + directionsUrl + '" target="_blank" rel="noopener noreferrer">구글맵 전체 다중 경유지 동선 열기</a>' +
+              '<a class="btn" href="' + googleMapsPlaceUrl(monCourse.name + " Okinawa") + '" target="_blank" rel="noopener noreferrer">월 1R 지도</a>' +
+              '<a class="btn" href="' + googleMapsPlaceUrl(tueCourse.name + " Okinawa") + '" target="_blank" rel="noopener noreferrer">화 2R 지도</a>' +
+            "</div>" +
+          "</div>";
+      }
+
+      function updateSummary() {
+        var vPrice = getPriceObj("vehicle:" + state.selectedVehicleId);
+        var mPrice = getPriceObj("monCourse:" + state.selectedMonCourseId);
+        var tPrice = getPriceObj("tueCourse:" + state.selectedTueCourseId);
+        var hPrice = getPriceObj("hotel:" + state.selectedHotelId);
+
+        var vTotalKrw = Math.round(vPrice.krw);
+        var vTotalJpy = Math.round(vPrice.jpy);
+        var hTotalKrw = Math.round(hPrice.krw);
+        var hTotalJpy = Math.round(hPrice.jpy);
+        var mTotalKrw = Math.round(mPrice.krw * 4);
+        var mTotalJpy = Math.round(mPrice.jpy * 4);
+        var tTotalKrw = Math.round(tPrice.krw * 4);
+        var tTotalJpy = Math.round(tPrice.jpy * 4);
+
+        var totalKrw = vTotalKrw + mTotalKrw + tTotalKrw + hTotalKrw;
+        var totalJpy = vTotalJpy + mTotalJpy + tTotalJpy + hTotalJpy;
+        var perKrw = Math.round(totalKrw / 4);
+        var perJpy = Math.round(totalJpy / 4);
+
+        document.getElementById("total-krw").textContent = formatNum(totalKrw) + "원";
+        document.getElementById("total-jpy").textContent = "¥" + formatNum(totalJpy);
+        document.getElementById("per-krw").textContent = formatNum(perKrw) + "원";
+        document.getElementById("per-jpy").textContent = "¥" + formatNum(perJpy);
+
+        var regionObj = REGIONS.find(function (r) { return r.id === state.regionId; });
+        document.getElementById("summary-region-label").textContent = regionObj.title;
+        document.getElementById("breakdown-line").textContent =
+          "차량(4인) " + formatNum(vTotalKrw) + " · 1R(1인×4) " + formatNum(mTotalKrw) +
+          " · 2R(1인×4) " + formatNum(tTotalKrw) + " · 숙소(4인) " + formatNum(hTotalKrw);
+
+        var vehicle = VEHICLES.find(function (v) { return v.id === state.selectedVehicleId; });
+        var mon = COURSES[state.selectedMonCourseId];
+        var tue = COURSES[state.selectedTueCourseId];
+        var hotel = HOTELS[state.selectedHotelId];
+
+        document.getElementById("selection-strip").innerHTML =
+          '<span class="selection-item">차량: <strong>' + escapeHtml(vehicle.name) + "</strong></span>" +
+          '<span class="dot-sep">·</span>' +
+          '<span class="selection-item">월 1R: <strong>' + escapeHtml(mon.name) + "</strong></span>" +
+          '<span class="dot-sep">·</span>' +
+          '<span class="selection-item">화 2R: <strong>' + escapeHtml(tue.name) + "</strong></span>" +
+          '<span class="dot-sep">·</span>' +
+          '<span class="selection-item">숙소: <strong>' + escapeHtml(hotel.name) + "</strong></span>";
+      }
+
+      function recalculateAllByRate() {
+        var rate = state.exchangeRate;
+        Object.keys(state.prices).forEach(function (key) {
+          var p = state.prices[key];
+          if (p.source === "jpy") {
+            p.krw = Math.round((p.jpy / 100) * rate);
+          } else {
+            p.jpy = rate > 0 ? Math.round((p.krw / rate) * 100) : 0;
+          }
+        });
+        syncVisiblePriceInputs();
+        updateSummary();
+      }
+
+      function syncVisiblePriceInputs() {
+        var inputs = document.querySelectorAll('input[data-action="price-input"]');
+        inputs.forEach(function (inp) {
+          var key = inp.getAttribute("data-price-key");
+          var cur = inp.getAttribute("data-currency");
+          var p = getPriceObj(key);
+          var nextVal = formatNum(p[cur]);
+          if (document.activeElement !== inp && inp.value !== nextVal) {
+            inp.value = nextVal;
+          }
+        });
+        var hints = document.querySelectorAll("[data-team-hint]");
+        hints.forEach(function (hint) {
+          var key = hint.getAttribute("data-team-hint");
+          var p = getPriceObj(key);
+          var strongEl = hint.querySelector("strong");
+          if (strongEl) {
+            strongEl.textContent = "₩" + formatNum(p.krw * 4) + " / ¥" + formatNum(p.jpy * 4);
+          }
+        });
+      }
+
+      function showToast(msg) {
+        var toast = document.getElementById("toast");
+        toast.textContent = msg;
+        toast.classList.add("is-visible");
+        window.clearTimeout(toast._timer);
+        toast._timer = window.setTimeout(function () {
+          toast.classList.remove("is-visible");
+        }, 2300);
+      }
+
+      function copyKakaoSummary() {
+        var vehicle = VEHICLES.find(function (v) { return v.id === state.selectedVehicleId; });
+        var regionObj = REGIONS.find(function (r) { return r.id === state.regionId; });
+        var mon = COURSES[state.selectedMonCourseId];
+        var tue = COURSES[state.selectedTueCourseId];
+        var hotel = HOTELS[state.selectedHotelId];
+
+        var vP = getPriceObj("vehicle:" + vehicle.id);
+        var mP = getPriceObj("monCourse:" + mon.id);
+        var tP = getPriceObj("tueCourse:" + tue.id);
+        var hP = getPriceObj("hotel:" + hotel.id);
+
+        var mTotalKrw = Math.round(mP.krw * 4);
+        var mTotalJpy = Math.round(mP.jpy * 4);
+        var tTotalKrw = Math.round(tP.krw * 4);
+        var tTotalJpy = Math.round(tP.jpy * 4);
+
+        var totalKrw = Math.round(vP.krw + mTotalKrw + tTotalKrw + hP.krw);
+        var totalJpy = Math.round(vP.jpy + mTotalJpy + tTotalJpy + hP.jpy);
+        var perKrw = Math.round(totalKrw / 4);
+        var perJpy = Math.round(totalJpy / 4);
+
+        var lines = [
+          "[오키나와 4인 골프 투어 요약]",
+          "일정: 일요일 입국 · 월요일 1R · 화요일 2R(귀국)",
+          "권역: " + regionObj.title,
+          "적용 환율: 100¥ = " + formatNum(state.exchangeRate) + "원",
+          "",
+          "1) 차량(4인 총합): " + vehicle.name + " (" + formatNum(vP.krw) + "원 / ¥" + formatNum(vP.jpy) + ")",
+          "2) 숙소 2박(4인 총합): " + hotel.name + " (" + formatNum(hP.krw) + "원 / ¥" + formatNum(hP.jpy) + ")",
+          "3) 월요일 1R: " + mon.name + " (1인 " + formatNum(mP.krw) + "원/¥" + formatNum(mP.jpy) + " · 4인 " + formatNum(mTotalKrw) + "원/¥" + formatNum(mTotalJpy) + ")",
+          "4) 화요일 2R: " + tue.name + " (1인 " + formatNum(tP.krw) + "원/¥" + formatNum(tP.jpy) + " · 4인 " + formatNum(tTotalKrw) + "원/¥" + formatNum(tTotalJpy) + ")",
+          "",
+          "▶ 4인 합계: " + formatNum(totalKrw) + "원 (¥" + formatNum(totalJpy) + ")",
+          "▶ 1인당 예상: " + formatNum(perKrw) + "원 (¥" + formatNum(perJpy) + ")"
+        ];
+        var text = lines.join("\n");
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () {
+            showToast("카톡 공유용 요약이 복사되었습니다.");
+          }).catch(function () {
+            fallbackCopy(text);
+          });
+        } else {
+          fallbackCopy(text);
+        }
+      }
+
+      function fallbackCopy(text) {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand("copy");
+          showToast("카톡 공유용 요약이 복사되었습니다.");
+        } catch (err) {
+          showToast("복사에 실패했습니다. 브라우저 권한을 확인하세요.");
+        }
+        document.body.removeChild(ta);
+      }
+
+      function renderRegionBoundSections() {
+        renderRegionTabs();
+        renderMonCourses();
+        renderTueCourses();
+        renderHotels();
+        renderLocalGuide();
+        renderRouteMap();
+        updateSummary();
+      }
+
+      var regionSwapTimer = null;
+      function transitionRegionSections(nextRegionId) {
+        var wasSameRegion = nextRegionId === state.regionId;
+        state.selectedRegionCardId = nextRegionId;
+        renderRegionTabs();
+
+        if (wasSameRegion) {
+          updateSummary();
+          return;
+        }
+
+        var stages = document.querySelectorAll(".fade-stage");
+        stages.forEach(function (st) {
+          st.classList.add("is-fading-out");
+        });
+
+        window.clearTimeout(regionSwapTimer);
+        regionSwapTimer = window.setTimeout(function () {
+          state.regionId = nextRegionId;
+          var cfg = REGION_CONFIG[nextRegionId];
+          state.selectedMonCourseId = cfg.monCourses[0];
+          state.selectedTueCourseId = cfg.tueCourses[0];
+          state.selectedHotelId = cfg.hotels[0];
+          syncKanuchaCoursePrice();
+          renderRegionBoundSections();
+
+          window.requestAnimationFrame(function () {
+            stages.forEach(function (st) {
+              st.classList.remove("is-fading-out");
+            });
+          });
+        }, 190);
+      }
+
+      function initScrollReveal() {
+        var targets = document.querySelectorAll(".step-section.reveal-pending");
+        if (!("IntersectionObserver" in window)) {
+          targets.forEach(function (el) {
+            el.classList.remove("reveal-pending");
+            el.classList.add("is-visible");
+          });
+          return;
+        }
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.remove("reveal-pending");
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.08, rootMargin: "0px 0px -30px 0px" });
+
+        targets.forEach(function (el) {
+          observer.observe(el);
+        });
+      }
+
+      function computeTotalsForSelection(sel) {
+        var vP = getPriceObj("vehicle:" + sel.selectedVehicleId);
+        var hP = getPriceObj("hotel:" + sel.selectedHotelId);
+        var mKey = "monCourse:" + sel.selectedMonCourseId;
+        var tKey = "tueCourse:" + sel.selectedTueCourseId;
+        var mP = getPriceObj(mKey);
+        var tP = getPriceObj(tKey);
+
+        var mJpyPerPerson = mP.jpy;
+        var mKrwPerPerson = mP.krw;
+        var tJpyPerPerson = tP.jpy;
+        var tKrwPerPerson = tP.krw;
+
+        var isKanuchaStay = sel.selectedHotelId === "resort_kanucha";
+        if (sel.selectedMonCourseId === "kanucha_gc" && !mP.customEdited) {
+          mJpyPerPerson = isKanuchaStay ? 20556 : COURSES.kanucha_gc.monJpyPerPerson;
+          mKrwPerPerson = Math.round((mJpyPerPerson / 100) * state.exchangeRate);
+        }
+        if (sel.selectedTueCourseId === "kanucha_gc" && !tP.customEdited) {
+          tJpyPerPerson = isKanuchaStay ? 20556 : COURSES.kanucha_gc.tueJpyPerPerson;
+          tKrwPerPerson = Math.round((tJpyPerPerson / 100) * state.exchangeRate);
+        }
+
+        var totalKrw = Math.round(vP.krw + hP.krw + mKrwPerPerson * 4 + tKrwPerPerson * 4);
+        var totalJpy = Math.round(vP.jpy + hP.jpy + mJpyPerPerson * 4 + tJpyPerPerson * 4);
+        return {
+          totalKrw: totalKrw,
+          perPersonKrw: Math.round(totalKrw / 4),
+          totalJpy: totalJpy,
+          perPersonJpy: Math.round(totalJpy / 4)
+        };
+      }
+
+      function formatSubmissionTime(ms) {
+        if (!ms) return "";
+        var d = new Date(ms);
+        var mm = String(d.getMonth() + 1).padStart(2, "0");
+        var dd = String(d.getDate()).padStart(2, "0");
+        var hh = String(d.getHours()).padStart(2, "0");
+        var mi = String(d.getMinutes()).padStart(2, "0");
+        return mm + "/" + dd + " " + hh + ":" + mi;
+      }
+
+      function mostFrequentLabel(items, getter) {
+        if (!items.length) return "";
+        var counts = {};
+        var bestKey = "";
+        var bestCount = 0;
+        items.forEach(function (item) {
+          var label = getter(item);
+          counts[label] = (counts[label] || 0) + 1;
+          if (counts[label] > bestCount) {
+            bestCount = counts[label];
+            bestKey = label;
+          }
+        });
+        return bestKey + (bestCount > 1 ? " (" + bestCount + "표)" : "");
+      }
+
+      function updateSubmitButtonLabels() {
+        var topBtn = document.getElementById("btn-open-submit");
+        var bottomBtn = document.getElementById("btn-bottom-submit");
+        var isEditing = Boolean(state.editingSubmissionId);
+        if (topBtn) {
+          topBtn.textContent = isEditing ? "수정 내용 제출" : "제출하기";
+        }
+        if (bottomBtn) {
+          bottomBtn.textContent = isEditing ? "수정 내용 제출하기" : "내 선택 제출하기";
+        }
+      }
+
+      function renderSubmissions() {
+        updateSubmitButtonLabels();
+        var bannerSlot = document.getElementById("editing-banner-slot");
+        var container = document.getElementById("submissions-container");
+        if (!container || !bannerSlot) return;
+
+        if (state.editingSubmissionId) {
+          var editingItem = state.submissions.find(function (s) { return s.id === state.editingSubmissionId; });
+          var editingName = editingItem ? editingItem.memberName : "선택한 일행";
+          bannerSlot.innerHTML =
+            '<div class="editing-banner">' +
+              '<span><strong>' + escapeHtml(editingName) + '</strong> 님의 선택을 수정 중입니다. 위 카드에서 항목을 변경한 뒤 상단 또는 아래의 <strong>수정 내용 제출</strong>을 눌러주세요.</span>' +
+              '<button type="button" class="btn" data-action="cancel-edit-mode">수정 취소</button>' +
+            "</div>";
+        } else {
+          bannerSlot.innerHTML = "";
+        }
+
+        if (!state.submissions || state.submissions.length === 0) {
+          container.innerHTML =
+            '<div class="submission-empty">' +
+              "아직 제출된 일행 선택이 없습니다. 위에서 차량·권역·코스·숙소를 고른 뒤 <strong>제출하기</strong>를 눌러 첫 번째 선택을 남겨주세요." +
+            "</div>";
+          return;
+        }
+
+        var topRegion = mostFrequentLabel(state.submissions, function (s) {
+          var r = REGIONS.find(function (rg) { return rg.id === s.regionId; });
+          return r ? r.name : s.regionId;
+        });
+        var topHotel = mostFrequentLabel(state.submissions, function (s) {
+          return HOTELS[s.selectedHotelId] ? HOTELS[s.selectedHotelId].name : s.selectedHotelId;
+        });
+
+        var summaryBarHtml =
+          '<div class="submission-summary-bar">' +
+            '<span class="submission-count-strong">총 ' + state.submissions.length + '명 제출 완료</span>' +
+            '<span class="submission-consensus">다수 선택: 권역 ' + escapeHtml(topRegion) + " · 숙소 " + escapeHtml(topHotel) + "</span>" +
+          "</div>";
+
+        var cardsHtml = state.submissions.map(function (sub, idx) {
+          var regObj = REGIONS.find(function (r) { return r.id === sub.regionId; });
+          var vehObj = VEHICLES.find(function (v) { return v.id === sub.selectedVehicleId; });
+          var monObj = COURSES[sub.selectedMonCourseId];
+          var tueObj = COURSES[sub.selectedTueCourseId];
+          var hotObj = HOTELS[sub.selectedHotelId];
+
+          var isCurrentEdit = state.editingSubmissionId === sub.id;
+          var noteHtml = sub.note
+            ? '<div class="submission-note">💬 ' + escapeHtml(sub.note) + "</div>"
+            : "";
+          var deleteBtnHtml = state.isAdmin
+            ? '<button type="button" class="btn btn-danger-outline" data-action="delete-submission" data-submission-id="' + escapeHtml(sub.id) + '">삭제</button>'
+            : "";
+
+          return (
+            '<article class="submission-card' + (isCurrentEdit ? " is-editing" : "") + '" data-submission-id="' + escapeHtml(sub.id) + '">' +
+              '<div class="submission-card-head">' +
+                '<div class="submission-person">' +
+                  '<span class="submission-order">' + String(idx + 1).padStart(2, "0") + "</span>" +
+                  '<h3 class="submission-name">' + escapeHtml(sub.memberName) + "</h3>" +
+                "</div>" +
+                '<span class="submission-time">' + escapeHtml(formatSubmissionTime(sub.updatedAtMs)) + "</span>" +
+              "</div>" +
+              '<div class="submission-list">' +
+                '<div class="submission-row"><span class="submission-row-label">권역</span><span class="submission-row-value">' + escapeHtml(regObj ? regObj.title : sub.regionId) + "</span></div>" +
+                '<div class="submission-row"><span class="submission-row-label">차량</span><span class="submission-row-value">' + escapeHtml(vehObj ? vehObj.name : sub.selectedVehicleId) + "</span></div>" +
+                '<div class="submission-row"><span class="submission-row-label">월 1R</span><span class="submission-row-value">' + escapeHtml(monObj ? monObj.name : sub.selectedMonCourseId) + "</span></div>" +
+                '<div class="submission-row"><span class="submission-row-label">화 2R</span><span class="submission-row-value">' + escapeHtml(tueObj ? tueObj.name : sub.selectedTueCourseId) + "</span></div>" +
+                '<div class="submission-row"><span class="submission-row-label">숙소</span><span class="submission-row-value">' + escapeHtml(hotObj ? hotObj.name : sub.selectedHotelId) + "</span></div>" +
+              "</div>" +
+              noteHtml +
+              '<div class="submission-card-foot">' +
+                '<div class="submission-budget tabular">1인 ' + formatNum(sub.perPersonKrw) + '원 · 4인 ' + formatNum(sub.totalKrw) + "원</div>" +
+                '<div class="submission-actions">' +
+                  '<button type="button" class="btn" data-action="edit-submission" data-submission-id="' + escapeHtml(sub.id) + '">수정하기</button>' +
+                  deleteBtnHtml +
+                "</div>" +
+              "</div>" +
+            "</article>"
+          );
+        }).join("");
+
+        container.innerHTML = summaryBarHtml + '<div class="submission-grid">' + cardsHtml + "</div>";
+      }
+
+      function renderSubmitModalSelectionArea() {
+        var area = document.getElementById("modal-selection-area");
+        if (!area) return;
+        var m = state.modal;
+        var totals = computeTotalsForSelection(m);
+
+        if (!m.editId) {
+          var regObj = REGIONS.find(function (r) { return r.id === m.regionId; });
+          var vehObj = VEHICLES.find(function (v) { return v.id === m.selectedVehicleId; });
+          var monObj = COURSES[m.selectedMonCourseId];
+          var tueObj = COURSES[m.selectedTueCourseId];
+          var hotObj = HOTELS[m.selectedHotelId];
+
+          area.innerHTML =
+            '<div class="modal-preview">' +
+              '<div class="modal-preview-title">선택한 항목 확인</div>' +
+              '<div class="modal-preview-row"><span>권역</span><strong>' + escapeHtml(regObj ? regObj.title : m.regionId) + "</strong></div>" +
+              '<div class="modal-preview-row"><span>차량 (4인)</span><strong>' + escapeHtml(vehObj ? vehObj.name : m.selectedVehicleId) + "</strong></div>" +
+              '<div class="modal-preview-row"><span>월요일 1R</span><strong>' + escapeHtml(monObj ? monObj.name : m.selectedMonCourseId) + "</strong></div>" +
+              '<div class="modal-preview-row"><span>화요일 2R</span><strong>' + escapeHtml(tueObj ? tueObj.name : m.selectedTueCourseId) + "</strong></div>" +
+              '<div class="modal-preview-row"><span>2박 숙소</span><strong>' + escapeHtml(hotObj ? hotObj.name : m.selectedHotelId) + "</strong></div>" +
+              '<div class="modal-preview-row" style="padding-top:6px;border-top:1px dashed var(--border-strong);"><span>예상 예산</span><strong class="tabular">1인 ' + formatNum(totals.perPersonKrw) + "원 (4인 " + formatNum(totals.totalKrw) + "원)</strong></div>" +
+            "</div>";
+          return;
+        }
+
+        var cfg = REGION_CONFIG[m.regionId] || REGION_CONFIG.naha;
+        var regionOpts = REGIONS.map(function (r) {
+          return '<option value="' + r.id + '"' + (r.id === m.regionId ? " selected" : "") + ">" + escapeHtml(r.title) + "</option>";
+        }).join("");
+        var vehicleOpts = VEHICLES.map(function (v) {
+          return '<option value="' + v.id + '"' + (v.id === m.selectedVehicleId ? " selected" : "") + ">" + escapeHtml(v.name) + "</option>";
+        }).join("");
+        var monOpts = cfg.monCourses.map(function (cid) {
+          var c = COURSES[cid];
+          return '<option value="' + cid + '"' + (cid === m.selectedMonCourseId ? " selected" : "") + ">" + escapeHtml(c ? c.name : cid) + "</option>";
+        }).join("");
+        var tueOpts = cfg.tueCourses.map(function (cid) {
+          var c = COURSES[cid];
+          return '<option value="' + cid + '"' + (cid === m.selectedTueCourseId ? " selected" : "") + ">" + escapeHtml(c ? c.name : cid) + "</option>";
+        }).join("");
+        var hotelOpts = cfg.hotels.map(function (hid) {
+          var h = HOTELS[hid];
+          return '<option value="' + hid + '"' + (hid === m.selectedHotelId ? " selected" : "") + ">" + escapeHtml(h ? h.name : hid) + "</option>";
+        }).join("");
+
+        area.innerHTML =
+          '<div class="modal-preview">' +
+            '<div class="modal-preview-title">선택 항목 수정</div>' +
+            '<div class="modal-edit-grid">' +
+              '<div class="modal-field"><label for="modal-sel-region">권역</label><select id="modal-sel-region" class="modal-select" data-action="modal-select" data-field="regionId">' + regionOpts + "</select></div>" +
+              '<div class="modal-field"><label for="modal-sel-vehicle">차량</label><select id="modal-sel-vehicle" class="modal-select" data-action="modal-select" data-field="selectedVehicleId">' + vehicleOpts + "</select></div>" +
+              '<div class="modal-field"><label for="modal-sel-mon">월요일 1R</label><select id="modal-sel-mon" class="modal-select" data-action="modal-select" data-field="selectedMonCourseId">' + monOpts + "</select></div>" +
+              '<div class="modal-field"><label for="modal-sel-tue">화요일 2R</label><select id="modal-sel-tue" class="modal-select" data-action="modal-select" data-field="selectedTueCourseId">' + tueOpts + "</select></div>" +
+              '<div class="modal-field"><label for="modal-sel-hotel">2박 숙소</label><select id="modal-sel-hotel" class="modal-select" data-action="modal-select" data-field="selectedHotelId">' + hotelOpts + "</select></div>" +
+            "</div>" +
+            '<div class="modal-preview-row" style="padding-top:6px;border-top:1px dashed var(--border-strong);"><span>수정 후 예상 예산</span><strong class="tabular">1인 ' + formatNum(totals.perPersonKrw) + "원 (4인 " + formatNum(totals.totalKrw) + "원)</strong></div>" +
+          "</div>";
+      }
+
+      function openSubmitModal(existingSubmission) {
+        var modalEl = document.getElementById("submit-modal");
+        var titleEl = document.getElementById("submit-modal-title");
+        var subEl = document.getElementById("submit-modal-subtitle");
+        var nameInput = document.getElementById("modal-member-name");
+        var noteInput = document.getElementById("modal-member-note");
+        var confirmBtn = document.getElementById("btn-modal-confirm");
+        var pickCardsBtn = document.getElementById("btn-modal-pick-cards");
+        if (!modalEl || !nameInput || !noteInput) return;
+
+        if (existingSubmission) {
+          state.modal = {
+            open: true,
+            editId: existingSubmission.id,
+            regionId: existingSubmission.regionId,
+            selectedVehicleId: existingSubmission.selectedVehicleId,
+            selectedMonCourseId: existingSubmission.selectedMonCourseId,
+            selectedTueCourseId: existingSubmission.selectedTueCourseId,
+            selectedHotelId: existingSubmission.selectedHotelId
+          };
+          nameInput.value = existingSubmission.memberName || "";
+          noteInput.value = existingSubmission.note || "";
+          titleEl.textContent = "제출 내역 수정하기";
+          subEl.textContent = "이름·메모 또는 선택 항목을 수정한 뒤 저장하거나, 화면 카드로 이동해 다시 고를 수 있습니다.";
+          confirmBtn.textContent = "수정 완료";
+          if (pickCardsBtn) pickCardsBtn.hidden = false;
+        } else {
+          var activeEdit = state.editingSubmissionId
+            ? state.submissions.find(function (s) { return s.id === state.editingSubmissionId; })
+            : null;
+          state.modal = {
+            open: true,
+            editId: activeEdit ? activeEdit.id : null,
+            regionId: state.regionId,
+            selectedVehicleId: state.selectedVehicleId,
+            selectedMonCourseId: state.selectedMonCourseId,
+            selectedTueCourseId: state.selectedTueCourseId,
+            selectedHotelId: state.selectedHotelId
+          };
+          nameInput.value = activeEdit ? activeEdit.memberName : "";
+          noteInput.value = activeEdit ? (activeEdit.note || "") : "";
+          titleEl.textContent = activeEdit ? "수정한 선택 제출하기" : "선택 내역 제출하기";
+          subEl.textContent = "이름을 입력하고 선택한 항목을 확인한 뒤 제출하기를 눌러주세요.";
+          confirmBtn.textContent = activeEdit ? "수정 내용 제출" : "제출하기";
+          if (pickCardsBtn) pickCardsBtn.hidden = true;
+        }
+
+        renderSubmitModalSelectionArea();
+        modalEl.hidden = false;
+        window.setTimeout(function () {
+          nameInput.focus();
+        }, 40);
+      }
+
+      function closeSubmitModal() {
+        var modalEl = document.getElementById("submit-modal");
+        state.modal.open = false;
+        if (modalEl) {
+          modalEl.hidden = true;
+        }
+      }
+
+      function renderAll() {
+        initHeroSlides();
+        startHeroAutoplay();
+        renderVehicles();
+        renderRegionBoundSections();
+        renderSubmissions();
+        initScrollReveal();
+      }
+
+      var heroSection = document.getElementById("resort-hero");
+      if (heroSection) {
+        heroSection.addEventListener("mouseenter", stopHeroAutoplay);
+        heroSection.addEventListener("mouseleave", startHeroAutoplay);
+      }
+
+      document.addEventListener("click", function (event) {
+        if (event.target && event.target.tagName === "INPUT") return;
+        var target = event.target.closest("[data-action]");
+        if (!target) return;
+
+        var action = target.getAttribute("data-action");
+
+        if (action === "hero-prev") {
+          setHeroSlide(state.heroIndex - 1);
+          startHeroAutoplay();
+          return;
+        }
+
+        if (action === "hero-next") {
+          setHeroSlide(state.heroIndex + 1);
+          startHeroAutoplay();
+          return;
+        }
+
+        if (action === "hero-dot") {
+          var idx = parseInt(target.getAttribute("data-hero-index"), 10);
+          if (!isNaN(idx)) {
+            setHeroSlide(idx);
+            startHeroAutoplay();
+          }
+          return;
+        }
+
+        if (action === "track-prev" || action === "track-next") {
+          var trackId = target.getAttribute("data-target");
+          var track = document.getElementById(trackId);
+          if (track) {
+            var delta = action === "track-next" ? 322 : -322;
+            track.scrollBy({ left: delta, behavior: "smooth" });
+          }
+          return;
+        }
+
+        if (action === "firebase-login") {
+          if (window.OkinawaFirebase) {
+            window.OkinawaFirebase.signInAdmin();
+          } else {
+            showToast("Firebase 모듈을 불러오는 중입니다. 잠시 후 다시 시도하세요.");
+          }
+          return;
+        }
+
+        if (action === "firebase-logout") {
+          if (window.OkinawaFirebase) {
+            window.OkinawaFirebase.signOutAdmin();
+          }
+          return;
+        }
+
+        if (action === "firebase-save") {
+          if (!window.OkinawaFirebase) return;
+          var saveBtn = document.getElementById("btn-fb-save");
+          if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.textContent = "저장 중...";
+          }
+          window.OkinawaFirebase.saveTourAndPhotos(
+            {
+              regionId: state.regionId,
+              selectedVehicleId: state.selectedVehicleId,
+              selectedMonCourseId: state.selectedMonCourseId,
+              selectedTueCourseId: state.selectedTueCourseId,
+              selectedHotelId: state.selectedHotelId,
+              exchangeRate: state.exchangeRate,
+              prices: state.prices
+            },
+            state.photos
+          ).catch(function () {
+            showToast("Firebase DB 저장 중 오류가 발생했습니다.");
+          }).finally(function () {
+            if (saveBtn) {
+              saveBtn.disabled = false;
+              saveBtn.textContent = "DB 저장";
+            }
+          });
+          return;
+        }
+
+        if (action === "reset-prices") {
+          Object.keys(state.prices).forEach(function (k) {
+            state.prices[k] = { krw: 0, jpy: 0, source: "krw", customEdited: true };
+          });
+          syncVisiblePriceInputs();
+          updateSummary();
+          showToast("모든 입력 금액을 0으로 초기화했습니다.");
+          return;
+        }
+
+        if (action === "scroll-route") {
+          var routeEl = document.getElementById("step-07");
+          if (routeEl) {
+            routeEl.classList.remove("reveal-pending");
+            routeEl.classList.add("is-visible");
+            routeEl.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          return;
+        }
+
+        if (action === "copy-kakao") {
+          copyKakaoSummary();
+          return;
+        }
+
+        if (action === "open-export-modal") {
+          var exportModal = document.getElementById("export-modal");
+          if (exportModal) {
+            exportModal.hidden = false;
+            document.body.style.overflow = "hidden";
+          }
+          return;
+        }
+
+        if (action === "close-export-modal") {
+          var exportModalClose = document.getElementById("export-modal");
+          if (exportModalClose) {
+            exportModalClose.hidden = true;
+            document.body.style.overflow = "";
+          }
+          return;
+        }
+
+        if (action === "download-standalone-html") {
+          fetch("./standalone-index.html", { cache: "no-store" })
+            .then(function (res) {
+              if (!res.ok) throw new Error("Failed");
+              return res.text();
+            })
+            .then(function (htmlText) {
+              var blob = new Blob([htmlText], { type: "text/html;charset=utf-8" });
+              var url = URL.createObjectURL(blob);
+              var a = document.createElement("a");
+              a.href = url;
+              a.download = "index.html";
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+              showToast("index.html 파일 다운로드를 시작했습니다.");
+            })
+            .catch(function () {
+              var directLink = document.createElement("a");
+              directLink.href = "./standalone-index.html?download=1";
+              directLink.download = "index.html";
+              document.body.appendChild(directLink);
+              directLink.click();
+              document.body.removeChild(directLink);
+            });
+          return;
+        }
+
+        if (action === "copy-standalone-html") {
+          fetch("./standalone-index.html", { cache: "no-store" })
+            .then(function (res) {
+              if (!res.ok) throw new Error("Failed");
+              return res.text();
+            })
+            .then(function (htmlText) {
+              var codeBox = document.getElementById("export-code-box");
+              if (codeBox) {
+                codeBox.value = htmlText;
+              }
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                return navigator.clipboard.writeText(htmlText).then(function () {
+                  showToast("index.html 전체 코드를 복사했습니다. GitHub에 index.html로 붙여넣으세요.");
+                });
+              }
+              throw new Error("No clipboard");
+            })
+            .catch(function () {
+              var codeBox = document.getElementById("export-code-box");
+              if (codeBox && codeBox.value) {
+                codeBox.hidden = false;
+                codeBox.focus();
+                codeBox.select();
+                showToast("자동 복사가 차단되어 아래 상자를 길게 눌러 전체 복사해 주세요.");
+              } else {
+                showToast("코드 불러오기에 실패했습니다.");
+              }
+            });
+          return;
+        }
+
+        if (action === "open-submit-modal") {
+          openSubmitModal(null);
+          return;
+        }
+
+        if (action === "close-submit-modal") {
+          closeSubmitModal();
+          return;
+        }
+
+        if (action === "edit-submission") {
+          var subId = target.getAttribute("data-submission-id");
+          var found = state.submissions.find(function (s) { return s.id === subId; });
+          if (found) {
+            openSubmitModal(found);
+          }
+          return;
+        }
+
+        if (action === "load-edit-to-planner") {
+          var m = state.modal;
+          if (!m.editId) return;
+          state.editingSubmissionId = m.editId;
+          state.regionId = REGION_CONFIG[m.regionId] ? m.regionId : "naha";
+          state.selectedRegionCardId = state.regionId;
+          state.selectedVehicleId = m.selectedVehicleId;
+          state.selectedMonCourseId = m.selectedMonCourseId;
+          state.selectedTueCourseId = m.selectedTueCourseId;
+          state.selectedHotelId = m.selectedHotelId;
+          syncKanuchaCoursePrice();
+          renderVehicles();
+          renderRegionBoundSections();
+          renderSubmissions();
+          closeSubmitModal();
+          var step01 = document.getElementById("step-01");
+          if (step01) {
+            step01.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          showToast("선택 항목을 화면에 불러왔습니다. 변경 후 상단 '수정 내용 제출'을 눌러주세요.");
+          return;
+        }
+
+        if (action === "cancel-edit-mode") {
+          state.editingSubmissionId = null;
+          renderSubmissions();
+          showToast("수정을 취소했습니다.");
+          return;
+        }
+
+        if (action === "delete-submission") {
+          var delId = target.getAttribute("data-submission-id");
+          if (delId && window.OkinawaFirebase) {
+            window.OkinawaFirebase.deleteSubmission(delId).catch(function () {
+              showToast("제출 내역 삭제 중 오류가 발생했습니다.");
+            });
+          }
+          return;
+        }
+
+        if (action === "select-region") {
+          var regionId = target.getAttribute("data-region-id");
+          if (!regionId || !REGION_CONFIG[regionId]) return;
+          if (state.selectedRegionCardId === regionId) return;
+          transitionRegionSections(regionId);
+          return;
+        }
+
+        if (action === "select-item") {
+          var group = target.getAttribute("data-group");
+          var itemId = target.getAttribute("data-item-id");
+          if (group === "vehicle") {
+            state.selectedVehicleId = itemId;
+            renderVehicles();
+            renderRouteMap();
+            updateSummary();
+          } else if (group === "monCourse") {
+            state.selectedMonCourseId = itemId;
+            renderMonCourses();
+            renderRouteMap();
+            updateSummary();
+          } else if (group === "tueCourse") {
+            state.selectedTueCourseId = itemId;
+            renderTueCourses();
+            renderRouteMap();
+            updateSummary();
+          } else if (group === "hotel") {
+            state.selectedHotelId = itemId;
+            syncKanuchaCoursePrice();
+            renderHotels();
+            renderMonCourses();
+            renderTueCourses();
+            renderRouteMap();
+            updateSummary();
+          }
+          return;
+        }
+
+        if (event.target && event.target.closest && event.target.closest("[data-stop-upload]")) {
+          return;
+        }
+
+        if (action === "remove-photo") {
+          var removeKey = target.getAttribute("data-photo-key");
+          if (removeKey) {
+            delete state.photos[removeKey];
+            photoDb.remove(removeKey);
+            refreshPhotoSections(removeKey);
+            var fbBridge = window.OkinawaFirebase;
+            if (fbBridge && fbBridge.getAuthInfo().isAdmin) {
+              fbBridge.deleteSinglePhoto(removeKey).then(function (ok) {
+                showToast(ok ? "DB에서 등록된 사진을 삭제했습니다." : "사진을 삭제했습니다.");
+              }).catch(function () {
+                showToast("DB 사진 삭제 중 오류가 발생했습니다.");
+              });
+            } else {
+              showToast("등록된 사진을 삭제했습니다.");
+            }
+          }
+          return;
+        }
+
+        if (action === "trigger-upload") {
+          var mediaBox = target.closest(".card-media");
+          if (!mediaBox) return;
+          var fileInput = mediaBox.querySelector('input[type="file"]');
+          if (fileInput) {
+            fileInput.click();
+          }
+        }
+      });
+
+      document.addEventListener("focusin", function (event) {
+        var target = event.target;
+        if (!target || !target.getAttribute) return;
+        if (target.getAttribute("data-action") === "price-input" && target.value === "0") {
+          target.select();
+        }
+      });
+
+      document.addEventListener("input", function (event) {
+        var target = event.target;
+        if (!target || !target.getAttribute) return;
+        var action = target.getAttribute("data-action");
+
+        if (action === "rate-change") {
+          var nextRate = parseFloat(target.value);
+          state.exchangeRate = isNaN(nextRate) || nextRate < 0 ? 0 : nextRate;
+          recalculateAllByRate();
+          return;
+        }
+
+        if (action === "price-input") {
+          var key = target.getAttribute("data-price-key");
+          var currency = target.getAttribute("data-currency");
+          var cleanVal = parseNumStr(target.value);
+          var p = getPriceObj(key);
+          p.customEdited = true;
+          var rate = state.exchangeRate;
+
+          if (currency === "krw") {
+            p.krw = cleanVal;
+            p.jpy = rate > 0 ? Math.round((cleanVal / rate) * 100) : 0;
+            p.source = "krw";
+          } else {
+            p.jpy = cleanVal;
+            p.krw = Math.round((cleanVal / 100) * rate);
+            p.source = "jpy";
+          }
+
+          formatInputWithCommasPreserveCursor(target, cleanVal);
+
+          var card = target.closest(".item-card");
+          if (card) {
+            var siblingCur = currency === "krw" ? "jpy" : "krw";
+            var siblingInput = card.querySelector(
+              'input[data-price-key="' + key + '"][data-currency="' + siblingCur + '"]'
+            );
+            if (siblingInput) {
+              siblingInput.value = formatNum(p[siblingCur]);
+            }
+            var teamHint = card.querySelector('[data-team-hint="' + key + '"] strong');
+            if (teamHint) {
+              teamHint.textContent = "₩" + formatNum(p.krw * 4) + " / ¥" + formatNum(p.jpy * 4);
+            }
+          }
+          updateSummary();
+        }
+      });
+
+      var modalBackdropEl = document.getElementById("submit-modal");
+      if (modalBackdropEl) {
+        modalBackdropEl.addEventListener("click", function (event) {
+          if (event.target === modalBackdropEl) {
+            closeSubmitModal();
+          }
+        });
+      }
+
+      var exportBackdropEl = document.getElementById("export-modal");
+      if (exportBackdropEl) {
+        exportBackdropEl.addEventListener("click", function (event) {
+          if (event.target === exportBackdropEl) {
+            exportBackdropEl.hidden = true;
+            document.body.style.overflow = "";
+          }
+        });
+      }
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          if (state.modal.open) {
+            closeSubmitModal();
+          }
+          if (exportBackdropEl && !exportBackdropEl.hidden) {
+            exportBackdropEl.hidden = true;
+            document.body.style.overflow = "";
+          }
+        }
+      });
+
+      var submitFormEl = document.getElementById("submit-modal-form");
+      if (submitFormEl) {
+        submitFormEl.addEventListener("submit", function (event) {
+          event.preventDefault();
+          var nameInput = document.getElementById("modal-member-name");
+          var noteInput = document.getElementById("modal-member-note");
+          var confirmBtn = document.getElementById("btn-modal-confirm");
+          var memberName = nameInput ? nameInput.value.trim() : "";
+          var note = noteInput ? noteInput.value.trim() : "";
+          if (!memberName) {
+            showToast("이름을 입력해 주세요.");
+            if (nameInput) nameInput.focus();
+            return;
+          }
+          if (!window.OkinawaFirebase || !window.OkinawaFirebase.saveSubmission) {
+            showToast("Firebase 연결을 준비 중입니다. 잠시 후 다시 시도하세요.");
+            return;
+          }
+          var m = state.modal;
+          var totals = computeTotalsForSelection(m);
+          var wasEdit = Boolean(m.editId);
+          if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "저장 중...";
+          }
+          window.OkinawaFirebase.saveSubmission({
+            id: m.editId || undefined,
+            memberName: memberName,
+            note: note,
+            regionId: m.regionId,
+            selectedVehicleId: m.selectedVehicleId,
+            selectedMonCourseId: m.selectedMonCourseId,
+            selectedTueCourseId: m.selectedTueCourseId,
+            selectedHotelId: m.selectedHotelId,
+            totalKrw: totals.totalKrw,
+            perPersonKrw: totals.perPersonKrw,
+            totalJpy: totals.totalJpy,
+            perPersonJpy: totals.perPersonJpy
+          }).then(function (savedId) {
+            if (!savedId) return;
+            state.editingSubmissionId = null;
+            closeSubmitModal();
+            renderSubmissions();
+            showToast(wasEdit ? "제출 내역이 수정되었습니다." : "선택 내역이 하단에 제출되었습니다.");
+            var step08 = document.getElementById("step-08");
+            if (step08) {
+              step08.classList.remove("reveal-pending");
+              step08.classList.add("is-visible");
+              step08.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          }).catch(function () {
+            showToast("제출 저장 중 오류가 발생했습니다. 다시 시도해 주세요.");
+          }).finally(function () {
+            if (confirmBtn) {
+              confirmBtn.disabled = false;
+              confirmBtn.textContent = wasEdit ? "수정 완료" : "제출하기";
+            }
+          });
+        });
+      }
+
+      document.addEventListener("change", function (event) {
+        var target = event.target;
+        if (!target || !target.getAttribute) return;
+        var action = target.getAttribute("data-action");
+        if (action === "modal-select") {
+          var field = target.getAttribute("data-field");
+          if (!field) return;
+          state.modal[field] = target.value;
+          if (field === "regionId") {
+            var cfg = REGION_CONFIG[target.value] || REGION_CONFIG.naha;
+            if (cfg.monCourses.indexOf(state.modal.selectedMonCourseId) === -1) {
+              state.modal.selectedMonCourseId = cfg.monCourses[0];
+            }
+            if (cfg.tueCourses.indexOf(state.modal.selectedTueCourseId) === -1) {
+              state.modal.selectedTueCourseId = cfg.tueCourses[0];
+            }
+            if (cfg.hotels.indexOf(state.modal.selectedHotelId) === -1) {
+              state.modal.selectedHotelId = cfg.hotels[0];
+            }
+          }
+          renderSubmitModalSelectionArea();
+          return;
+        }
+        if (action !== "photo-upload") return;
+        var file = target.files && target.files[0];
+        if (!file) return;
+        processAndStorePhotoFile(file, target.getAttribute("data-photo-key"));
+      });
+
+      document.addEventListener("dragover", function (event) {
+        var mediaBox = event.target && event.target.closest && event.target.closest(".card-media");
+        if (!mediaBox) return;
+        event.preventDefault();
+        mediaBox.classList.add("is-dragover");
+      });
+
+      document.addEventListener("dragleave", function (event) {
+        var mediaBox = event.target && event.target.closest && event.target.closest(".card-media");
+        if (!mediaBox) return;
+        if (!mediaBox.contains(event.relatedTarget)) {
+          mediaBox.classList.remove("is-dragover");
+        }
+      });
+
+      document.addEventListener("drop", function (event) {
+        var mediaBox = event.target && event.target.closest && event.target.closest(".card-media");
+        if (!mediaBox) return;
+        event.preventDefault();
+        mediaBox.classList.remove("is-dragover");
+        var file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+        if (!file || file.type.indexOf("image/") !== 0) return;
+        var photoKey = mediaBox.getAttribute("data-photo-key");
+        processAndStorePhotoFile(file, photoKey);
+      });
+
+      var lastRemotePhotoKeys = {};
+
+      function updateFirebaseHeaderButtons(authInfo) {
+        state.isAdmin = Boolean(authInfo && authInfo.signedIn && authInfo.isAdmin);
+        var loginBtn = document.getElementById("btn-fb-login");
+        var saveBtn = document.getElementById("btn-fb-save");
+        var logoutBtn = document.getElementById("btn-fb-logout");
+        if (loginBtn && saveBtn && logoutBtn) {
+          loginBtn.hidden = Boolean(authInfo && authInfo.signedIn);
+          saveBtn.hidden = !(authInfo && authInfo.signedIn && authInfo.isAdmin);
+          logoutBtn.hidden = !(authInfo && authInfo.signedIn);
+          if (authInfo && authInfo.signedIn) {
+            logoutBtn.textContent = authInfo.isAdmin ? "로그아웃" : "읽기전용 로그아웃";
+          }
+        }
+        renderSubmissions();
+      }
+
+      function applyRemoteTour(tour) {
+        if (!tour || !REGION_CONFIG[tour.regionId]) return;
+        state.regionId = tour.regionId;
+        if (VEHICLES.some(function (v) { return v.id === tour.selectedVehicleId; })) {
+          state.selectedVehicleId = tour.selectedVehicleId;
+        }
+        if (COURSES[tour.selectedMonCourseId]) {
+          state.selectedMonCourseId = tour.selectedMonCourseId;
+        }
+        if (COURSES[tour.selectedTueCourseId]) {
+          state.selectedTueCourseId = tour.selectedTueCourseId;
+        }
+        if (HOTELS[tour.selectedHotelId]) {
+          state.selectedHotelId = tour.selectedHotelId;
+        }
+        if (typeof tour.exchangeRate === "number" && tour.exchangeRate >= 0) {
+          state.exchangeRate = tour.exchangeRate;
+          var rateInput = document.getElementById("exchange-rate-input");
+          if (rateInput && document.activeElement !== rateInput) {
+            rateInput.value = String(state.exchangeRate);
+          }
+        }
+        if (tour.prices && typeof tour.prices === "object") {
+          Object.keys(tour.prices).forEach(function (k) {
+            var entry = tour.prices[k];
+            if (entry && typeof entry === "object") {
+              state.prices[k] = {
+                krw: Math.round(Number(entry.krw) || 0),
+                jpy: Math.round(Number(entry.jpy) || 0),
+                source: entry.source === "krw" ? "krw" : "jpy",
+                customEdited: Boolean(entry.customEdited)
+              };
+            }
+          });
+        }
+        syncKanuchaCoursePrice();
+        renderVehicles();
+        renderRegionBoundSections();
+        renderSubmissions();
+      }
+
+      function applyRemotePhotos(remotePhotos) {
+        var incoming = remotePhotos || {};
+        Object.keys(lastRemotePhotoKeys).forEach(function (oldKey) {
+          if (!Object.prototype.hasOwnProperty.call(incoming, oldKey)) {
+            delete state.photos[oldKey];
+            photoDb.remove(oldKey);
+          }
+        });
+        var nextKeys = {};
+        Object.keys(incoming).forEach(function (k) {
+          state.photos[k] = incoming[k];
+          nextKeys[k] = true;
+        });
+        lastRemotePhotoKeys = nextKeys;
+        renderVehicles();
+        renderMonCourses();
+        renderTueCourses();
+        renderHotels();
+      }
+
+      function applyRemoteSubmissions(submissions) {
+        state.submissions = Array.isArray(submissions) ? submissions : [];
+        renderSubmissions();
+      }
+
+      function connectFirebaseBridge() {
+        if (!window.OkinawaFirebase) return;
+        window.OkinawaFirebase.subscribe({
+          onAuthChanged: updateFirebaseHeaderButtons,
+          onRemoteTour: applyRemoteTour,
+          onRemotePhotos: applyRemotePhotos,
+          onRemoteSubmissions: applyRemoteSubmissions,
+          onToast: showToast
+        });
+      }
+
+      initDefaultCoursePrices();
+      renderAll();
+
+      photoDb.loadAll().then(function (savedPhotos) {
+        if (savedPhotos && Object.keys(savedPhotos).length > 0) {
+          Object.keys(savedPhotos).forEach(function (k) {
+            if (!state.photos[k]) {
+              state.photos[k] = savedPhotos[k];
+            }
+          });
+          renderVehicles();
+          renderMonCourses();
+          renderTueCourses();
+          renderHotels();
+        }
+      });
+
+      if (window.OkinawaFirebase) {
+        connectFirebaseBridge();
+      } else {
+        window.addEventListener("okinawa-firebase-ready", connectFirebaseBridge, { once: true });
+      }
+
+      if (!location.hostname.endsWith(".github.io")) {
+        fetch("./standalone-index.html", { method: "HEAD", cache: "no-store" })
+          .then(function (res) {
+            var exportBtn = document.getElementById("btn-export-html");
+            if (res.ok && exportBtn) {
+              exportBtn.hidden = false;
+            }
+          })
+          .catch(function () {});
+      }
+    })();
+  </script>
+</body>
+</html>
